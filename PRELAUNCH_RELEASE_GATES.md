@@ -12,6 +12,7 @@ This page records the preparatory work and blockers; it does not authorize a lau
 - [x] Keyboard skip links, focus indicators, responsive CSS and reduced-motion support exist for primary demos.
 - [x] Example profiles do not impersonate real reviewers and cannot produce genuine ratings.
 - [x] GitHub CI runs synthetic SQL, security and UI consistency regressions.
+- [x] GitHub CI now runs an **actual headless Chromium browser** via the runner's preinstalled Chrome and a local static server: 320/390/768/1280px responsive smoke checks, five UI languages, role transitions, sample quotes and basic keyboard navigation. This is browser viewport emulation, **not real iPhone/Android device testing**.
 
 ## Must remain **BLOCKED** before launch
 
@@ -29,6 +30,13 @@ This page records the preparatory work and blockers; it does not authorize a lau
 ## Decision rule
 
 **HOLD** while any blocker remains unchecked. The current GitHub test suite checks that demo behavior and write gates are still closed; it cannot claim that every future production risk has been solved. NEVER infer approval from a green GitHub check or a successful Cloudflare Pages deployment.
+
+## Browser quality limitations and safety
+
+- The Chrome suite serves the checked-out repository only on `127.0.0.1`; network interception rejects nonlocal resources and `/api/` calls. No Cloudflare credentials or production D1 access are used.
+- On each relevant PR/push, the test uses the preinstalled runner Chrome, an ephemeral version-pinned `playwright-core` library (without downloading browsers) and an 8-minute job timeout. This uses existing GitHub Actions minutes; **it is not a promise of unlimited free CI quota**.
+- Browser execution covers simulated narrow viewports and interactive journeys, but does not certify VoiceOver/TalkBack, physical device touch interactions, WCAG or production security.
+- The shared demo state machine now independently rejects provider offer preparation from customer role, customer selection from provider role and repeated preparation/selection transitions.
 
 ## Changes in this package
 
