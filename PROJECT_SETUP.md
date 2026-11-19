@@ -43,3 +43,12 @@ Sin servicios de pago configurados. Planeado para GitHub + Cloudflare Pages/D1/T
 - La clave permite aprobar o rechazar entradas pendientes, por lo que debe ser tratada como credencial privilegiada. Recomendado: añadir Cloudflare Access, gestión de roles y un registro de auditoría antes de uso real.
 - `/api/config` publica solamente indicadores seguros: `turnstileConfigured` y `submissionsEnabled`; nunca revela el secret.
 - **No habilitar todavía** `SUBMISSIONS_ENABLED`. Faltan privacidad y proceso de denuncias, además de pruebas de extremo a extremo.
+
+## Moderación – controles adicionales
+- Los anuncios aprobados pueden retirarse inmediatamente (approved → rejected).
+- Desde el panel puede eliminarse permanentemente cualquier solicitud, incluyendo el correo guardado. Requiere doble confirmación. No se proporciona restauración.
+- La interfaz no almacena la clave administrativa de forma persistente; la clave sigue existiendo únicamente en memoria temporal hasta cerrar la pestaña o seleccionar Cerrar sesión.
+- Los accesos de administración no autorizados devuelven HTTP 401 si `MODERATION_ADMIN_KEY` está configurado. El panel HTML no es un muro de autenticación: es la API la que controla el acceso a los datos.
+- La clave administrativa inicial apareció en una conversación y se debe **rotar por una nueva clave generada directamente en el gestor de contraseñas** antes de recibir datos reales.
+- Estado público de Turnstile: `/api/config` (solo booleano). Comprobar que `turnstileConfigured` sea true y `submissionsEnabled` false.
+- La validación live del panel debe confirmar GET anónimo HTTP 401, POST público HTTP 503 y ausencia de filtraciones.
