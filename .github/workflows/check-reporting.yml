@@ -8,6 +8,7 @@ on:
       - 'admin/**'
       - 'index.html'
       - 'scripts/**'
+      - 'demo/**'
       - '.github/workflows/check-reporting.yml'
   push:
     branches: [main]
@@ -17,6 +18,7 @@ on:
       - 'admin/**'
       - 'index.html'
       - 'scripts/**'
+      - 'demo/**'
       - '.github/workflows/check-reporting.yml'
   workflow_dispatch:
 
