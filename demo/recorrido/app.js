@@ -62,7 +62,7 @@ function renderThread(t){
  if(!state.selectedProvider){$('thread').replaceChildren(make('p',t.hintCustomer,'muted'));return;}
  const bubble=(author,body,cls)=>{const el=make('div',undefined,'bubble '+cls);el.append(make('strong',author),make('span',body));return el;};
  const thread=[bubble(t.msgCustomer,t.lineCustomer,'customer'),bubble(t.msgProvider,t.lineProvider,'provider')];
- if(state.reply>=0)thread.push(bubble(state.view==='provider'?t.msgProvider:t.msgCustomer,state.reply===0?t.responseOne:t.responseTwo,state.view==='provider'?'provider':'customer'));
+ if(state.reply>=0)thread.push(bubble(t.msgCustomer,state.reply===0?t.responseOne:t.responseTwo,'customer'));
  $('thread').replaceChildren(...thread);
 }
 $('job').addEventListener('change',()=>{setJob(state,$('job').value);render();});
