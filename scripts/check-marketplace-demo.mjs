@@ -12,7 +12,7 @@ const createNode=(tag='div')=>({
  tag,textContent:'',className:'',dataset:{},hidden:false,children:[],
  append(...children){this.children.push(...children);},
  replaceChildren(...children){this.children=[...children];},
- classList:{toggle(){}},setAttribute(){},addEventListener(name,cb){this['on'+name]=cb;},
+ classList:{toggle(){},add(){}},setAttribute(){},addEventListener(name,cb){this['on'+name]=cb;},
  showModal(){this.open=true},close(){this.open=false},
  options:[],value:'',placeholder:''
 });
