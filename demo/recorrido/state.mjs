@@ -17,11 +17,11 @@ export function chooseProvider(state,id){
  state.selectedProvider=id;state.offerStatus='unprepared';state.reply=-1;return true;
 }
 export function prepareOffer(state){
- if(!state.selectedProvider||!quoteFor(state.jobId,state.selectedProvider))return false;
+ if(state.view!=='provider'||state.offerStatus!=='unprepared'||!state.selectedProvider||!quoteFor(state.jobId,state.selectedProvider))return false;
  state.offerStatus='prepared';return true;
 }
 export function confirmOffer(state){
- if(state.offerStatus!=='prepared'||!quoteFor(state.jobId,state.selectedProvider))return false;
+ if(state.view!=='customer'||state.offerStatus!=='prepared'||!quoteFor(state.jobId,state.selectedProvider))return false;
  state.offerStatus='selected';return true;
 }
 export function mockMessage(state,index){
