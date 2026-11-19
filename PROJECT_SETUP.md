@@ -34,3 +34,12 @@ Sin servicios de pago configurados. Planeado para GitHub + Cloudflare Pages/D1/T
 - Confirmado por el operador: `/api/health` responde `{"ok":true,"database":"connected"}`.
 - El ajuste `SUBMISSIONS_ENABLED` no debe añadirse aún (valor por defecto = deshabilitado).
 - Solo se usa el sitekey público en variables; el secreto Turnstile nunca debe aparecer en el repositorio, URL o mensajes públicos.
+
+## Moderación protegida (preparada, no habilitada)
+- Interfaz: `/admin/`, API: `/api/admin/submissions`.
+- Para habilitar el acceso administrativo en Pages Production, generar una clave aleatoria **única de al menos 32 caracteres** y guardarla solo en Cloudflare como secret `MODERATION_ADMIN_KEY`. No usar el secret de Turnstile como clave administrativa.
+- Tras desplegar, el administrador introduce esa clave directamente en `/admin/`. La página no guarda la clave en almacenamiento local, cookies ni URL.
+- Hasta que se configure el secret, la API de moderación responde `ADMIN_NOT_CONFIGURED` y no muestra solicitudes.
+- La clave permite aprobar o rechazar entradas pendientes, por lo que debe ser tratada como credencial privilegiada. Recomendado: añadir Cloudflare Access, gestión de roles y un registro de auditoría antes de uso real.
+- `/api/config` publica solamente indicadores seguros: `turnstileConfigured` y `submissionsEnabled`; nunca revela el secret.
+- **No habilitar todavía** `SUBMISSIONS_ENABLED`. Faltan privacidad y proceso de denuncias, además de pruebas de extremo a extremo.
