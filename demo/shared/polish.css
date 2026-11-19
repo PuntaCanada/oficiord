@@ -83,12 +83,12 @@
 
 /* WCAG AA contrast corrections verified against real Chromium/axe element reports.
    Muted explanatory text must be readable on pale cards, badges and page surfaces. */
-:where(.photo-note,.subtext,.quote-top small,.job-choice small,.status-step,
+:is(.photo-note,.subtext,.quote-top small,.job-choice small,.status-step,
  #profile-categories,#thread-warning,#perspective-label,#job-meta,#job-badge,
  #offers-intro,#messages-intro,#message-note,#trust-description,
  #t-step2,#t-step3,#t-noticeInline,#t-youCreated,#preview-meta,#t-footer,
  #fine,#footer,.notice-small,.muted){color:#365367}
-:where(.job-choice small,.status-step,#profile-categories,
+:is(.job-choice small,.status-step,#profile-categories,
  #phase-prepared,#phase-selected){color:#2e5267}
-:where(.photo-note,#t-noticeInline,#t-youCreated,#preview-meta){color:#31566b}
-:where(footer,#footer,#t-footer){color:#405c6b}
+:is(.photo-note,#t-noticeInline,#t-youCreated,#preview-meta){color:#31566b}
+:is(footer,#footer,#t-footer){color:#405c6b}
