@@ -40,7 +40,7 @@ class Scripts(HTMLParser):
         if self.inside:
             self.scripts[-1] += data
 
-for path in ["index.html","admin/index.html"]:
+for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/index.html","admin/index.html"]:
     parser=Scripts()
     parser.feed((ROOT/path).read_text(encoding="utf-8"))
     assert parser.scripts, f"No JS script in {path}"
@@ -55,3 +55,24 @@ for marker in ['es:"🇩🇴 Español"','en:"🇺🇸 English"','de:"🇩🇪 De
     assert marker in i18n, f"Missing language: {marker}"
 assert '<script src="/i18n.js" defer></script>' in (ROOT/"index.html").read_text(encoding="utf-8")
 print("PASS: five-language selector loaded")
+
+# Each language is an independent, indexable URL with consistent hreflang links.
+from xml.etree import ElementTree as ET
+pages={"es":"index.html","en":"en/index.html","de":"de/index.html","fr":"fr/index.html","ht":"ht/index.html"}
+titles=set()
+for lang,path in pages.items():
+    html=(ROOT/path).read_text(encoding="utf-8")
+    assert f'<html lang="{lang}">' in html, (lang,"lang attribute")
+    assert f'rel="canonical" href="https://oficiord.pages.dev/{"" if lang=="es" else lang+"/"}"' in html
+    for alternate in pages:
+        assert f'hreflang="{alternate}"' in html
+    assert '<script src="/i18n.js" defer></script>' in html
+    import re
+    title=re.search(r'<title>(.*?)</title>',html).group(1)
+    assert title not in titles, f"Duplicate SEO title: {title}"
+    titles.add(title)
+ET.parse(ROOT/"sitemap.xml")
+robots=(ROOT/"robots.txt").read_text(encoding="utf-8")
+assert "Sitemap: https://oficiord.pages.dev/sitemap.xml" in robots
+assert "Disallow: /admin/" in robots and "Disallow: /api/" in robots
+print("PASS: five indexable pages, distinct titles, canonicals, hreflang, XML sitemap and robots")
