@@ -18,7 +18,19 @@ fr:{title:'Espace personnel — démonstration',intro:'Aperçu des espaces clien
 ht:{title:'Espas pèsonèl — demonstrasyon',intro:'Men yon egzanp espas kliyan ak pwofesyonèl yo. Sa yo pa kont reyèl.',alerthead:'Mòd demonstrasyon.',alert:'Enskripsyon ak koneksyon pa imèl poko ouvè. Tout enfòmasyon sa yo se egzanp; anyen pa voye ni estoke.',langlabel:'Lang',rolelabel:'Wòl',customer:'Kliyan',provider:'Pwofesyonèl',login:'Voye lyen koneksyon',loginNote:'N ap prepare koneksyon ak lyen imèl.',email:'Adrès imèl (pa antre done reyèl)',dashCustomer:'Travay mwen',dashProvider:'Pwofil mwen ak òf mwen',foot:'Demonstrasyon sèlman. Pa gen peman, mesaj, ni aksè ak done prive.',job:'Repare wobinè (egzanp)',jobDesc:'Higüey · Plonbri · Anba revizyon (fiktif)',job2:'Verifye èkondisyone (egzanp)',job2Desc:'Bávaro · Èkondisyone · Fiktif',profile:'Pwofesyonèl egzanp',profileDesc:'Bávaro · Èkondisyone · Pa verifye (fiktif)',offer:'Egzanp òf',offerDesc:'RD$ 3 500 · Annatant (fiktif)',none:'Pa disponib'}
 };
 const params=new URLSearchParams(location.search);
-const selected=params.get('lang');if(Object.hasOwn(translations,selected))$('lang').value=selected;
+const supported=code=>Object.hasOwn(translations,code);
+const preferred=()=>{
+ try{const v=localStorage.getItem('oficiord-language');return supported(v)?v:null;}catch{return null;}
+};
+const browserLanguage=()=>{
+ for(const raw of navigator.languages||[navigator.language||'']){
+  const code=String(raw).toLowerCase().split('-')[0];
+  if(supported(code))return code;
+ }
+ return 'es';
+};
+const selected=params.get('lang');
+$('lang').value=supported(selected)?selected:(preferred()||browserLanguage());
 function card(title,desc){const a=document.createElement('article');a.className='card';const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.textContent=desc;const tag=document.createElement('span');tag.className='pill';tag.textContent='DEMO';a.append(h,p,tag);return a;}
 function render(){const t=translations[$('lang').value]||translations.es;document.documentElement.lang=$('lang').value;document.title='OficioRD · '+t.title;
  for(const k of ['title','intro','alerthead','alert','langlabel','rolelabel'])$(k).textContent=t[k];
@@ -27,5 +39,6 @@ function render(){const t=translations[$('lang').value]||translations.es;documen
  const customer=$('role').value==='customer';$('dashboard-title').textContent=customer?t.dashCustomer:t.dashProvider;
  $('cards').replaceChildren(...(customer?[card(t.job,t.jobDesc),card(t.job2,t.job2Desc)]:[card(t.profile,t.profileDesc),card(t.offer,t.offerDesc)]));
 }
-$('lang').onchange=render;$('role').onchange=render;render();
+$('lang').onchange=()=>{try{localStorage.setItem('oficiord-language',$('lang').value);}catch{} render();};
+$('role').onchange=render;render();
 </script></body></html>
