@@ -59,6 +59,15 @@ jobs:
               echo "Logout HTTP $logout_code"
               test "$logout_code" = "503"
               python3 -c 'import json;d=json.load(open("/tmp/logout.json",encoding="utf-8"));assert d.get("error")=="LOGOUT_NOT_ENABLED"'
+              echo "Checking privacy and session APIs remain closed"
+              for endpoint in export sessions privacy; do
+                check_code=$(curl --silent --show-error --output /tmp/private.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/account/$endpoint")
+                echo "$endpoint GET: $check_code"
+                test "$check_code" = "503"
+              done
+              privacy_post_code=$(curl --silent --show-error --request POST --header 'content-type: application/json' --data '{}' --output /tmp/privacy-write.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/account/privacy")
+              test "$privacy_post_code" = "503"
+              python3 -c 'import json;d=json.load(open("/tmp/privacy-write.json"));assert d.get("error")=="PRIVACY_REQUESTS_NOT_ENABLED"'
               echo "Checking public moderation page is deployed"
               html_code=$(curl --silent --show-error --location --output /tmp/admin.html --write-out '%{http_code}' "https://oficiord.pages.dev/admin/")
               echo "Moderation HTML HTTP $html_code"
