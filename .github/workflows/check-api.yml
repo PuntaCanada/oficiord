@@ -1,0 +1,36 @@
+name: Check OficioRD public API
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/check-api.yml'
+
+jobs:
+  check-public-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check Pages public API and D1 binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://oficiord.pages.dev/api/submissions?kind=job"
+          for attempt in 1 2 3 4 5; do
+            code=$(curl --max-time 20 --silent --show-error --location --output /tmp/api.json --write-out '%{http_code}' "$URL") || code=000
+            echo "Attempt $attempt: HTTP $code"
+            if [ "$code" = "200" ]; then
+              python3 - <<'PY'
+import json
+with open('/tmp/api.json', encoding='utf-8') as f: data=json.load(f)
+assert isinstance(data.get('items'),list), "Expected an items array"
+assert all(isinstance(x,dict) and 'contact_email' not in x for x in data['items']), "Private contact_email exposed!"
+print("PASS: API available, database query works, contact emails are not exposed.")
+PY
+              exit 0
+            fi
+            if [ -f /tmp/api.json ]; then head -c 400 /tmp/api.json; echo; fi
+            sleep 10
+          done
+          echo "::error::OficioRD API is not returning HTTP 200. Verify the D1 binding DB in Cloudflare Pages Production and redeploy."
+          exit 1
