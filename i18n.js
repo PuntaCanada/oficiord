@@ -71,47 +71,28 @@
  };
  const sourceMap={};
  for(const [es,translations] of Object.entries(strings))for(const [lang,val] of Object.entries(translations)){sourceMap[lang]??=new Map();sourceMap[lang].set(es,val);}
+ // Explicit locale URLs remain canonical; the homepage always opens in Spanish.
+ // A user's browser preferences never unexpectedly redirect / to English.
  const qs=new URLSearchParams(location.search);
  const pathLanguage=location.pathname.match(/^\/(en|de|fr|ht)\/$/)?.[1];
  const legacyLanguage=qs.get('lang');
  const supported=key=>Object.hasOwn(languages,key);
- const languageFromBrowser=()=>{
-  for(const raw of navigator.languages||[navigator.language||'']){
-   const code=String(raw).toLowerCase().split('-')[0];
-   if(supported(code))return code;
-  }
-  return 'es';
- };
- const readPreference=()=>{
-  try{const stored=localStorage.getItem('oficiord-language');return supported(stored)?stored:null;}catch{return null;}
- };
- const savePreference=lang=>{try{localStorage.setItem('oficiord-language',lang);}catch{}};
- // An explicit locale URL (or legacy ?lang=) always wins. Only the bare
- // Spanish home page detects a saved preference or the browser language.
- const requestedLanguage=supported(legacyLanguage)?legacyLanguage:null;
- if(!pathLanguage&&location.pathname==='/'){
-  const target=requestedLanguage||readPreference()||languageFromBrowser();
-  if(target!=='es'){
-   location.replace('/'+target+'/');
-   return;
+ if(!pathLanguage&&supported(legacyLanguage)&&legacyLanguage!=='es'){
+  location.replace('/'+legacyLanguage+'/');
+  return;
+ }
+ let current=pathLanguage||'es';
+ const picker=document.getElementById('language-picker');
+ if(picker){
+  const active=picker.querySelector('.current-language-label');
+  if(active)active.textContent=languages[current];
+  for(const link of picker.querySelectorAll('a[data-language]')){
+   if(link.dataset.language===current)link.setAttribute('aria-current','page');
+   link.addEventListener('click',()=>{
+    try{localStorage.setItem('oficiord-language',link.dataset.language);}catch{}
+   });
   }
  }
- let current=pathLanguage||requestedLanguage||'es';
- const picker=document.createElement('select');picker.id='language-picker';picker.setAttribute('aria-label','Language / Idioma');
- const flags={es:'🇩🇴',en:'🇺🇸',de:'🇩🇪',fr:'🇫🇷',ht:'🇭🇹'};
- const flagIndicator=document.createElement('span');
- flagIndicator.id='language-flag';
- flagIndicator.setAttribute('aria-hidden','true');
- flagIndicator.style.cssText='font-size:24px;line-height:1;display:inline-flex;align-items:center';
- flagIndicator.textContent=flags[current];
- const languageWrap=document.createElement('span');
- languageWrap.style.cssText='display:inline-flex;gap:6px;align-items:center;flex-shrink:0';
- picker.style.cssText='font:inherit;font-size:14px;color:#102b46;background:#fff;border:1px solid #aac0cc;border-radius:8px;padding:7px 8px;width:auto;min-width:135px';
- for(const [key,label] of Object.entries(languages))picker.add(new Option(label,key));
- picker.value=current;
- const nav=document.querySelector('header nav');
- languageWrap.append(flagIndicator,picker);
- nav?.append(languageWrap);
  const originals=new WeakMap();
  const placeholders=new Map([
  ['Describe el problema sin incluir nombres, teléfonos ni direcciones',{en:'Describe the issue without names, phone numbers or addresses',de:'Beschreibe das Problem ohne Namen, Telefonnummern oder Adressen',fr:'Décrivez le problème sans noms, téléphones ni adresses',ht:'Dekri pwoblèm nan san non, nimewo telefòn oswa adrès'}]
@@ -136,7 +117,7 @@
    const base=originals.get(node);const next=current==='es'?base:translateExact(base);
    if(node.nodeValue!==next)node.nodeValue=next;
   }
-  for(const option of document.querySelectorAll('select:not(#language-picker) option')){
+  for(const option of document.querySelectorAll('select option')){
    if(!originals.has(option))originals.set(option,option.textContent);
    const base=originals.get(option);
    const translated=current==='es'?base:translateExact(base);
@@ -152,12 +133,6 @@
  const observer=new MutationObserver(()=>{
   if(translating||pending)return;
   pending=true;queueMicrotask(()=>{pending=false;translating=true;observer.disconnect();try{localize();}finally{observer.observe(document.body,{subtree:true,childList:true,characterData:true});translating=false;}});
- });
- picker.addEventListener('change',()=>{
-  const language=picker.value;
-  savePreference(language);
-  flagIndicator.textContent=flags[language];
-  location.assign(language==='es'?'/':'/'+language+'/');
  });
  translating=true;localize();translating=false;
  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
