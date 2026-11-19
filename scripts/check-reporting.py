@@ -11,6 +11,7 @@ db.execute("PRAGMA foreign_keys=ON")
 db.executescript((ROOT / "migrations/0001_init.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0002_reports.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0003_marketplace.sql").read_text(encoding="utf-8"))
+db.executescript((ROOT / "migrations/0004_accounts.sql").read_text(encoding="utf-8"))
 db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email) VALUES(?,?,?,?,?,?,?)",
   ("a"*36,"job","Prueba","Higüey","Otros","Descripción de prueba","fake@example.invalid"))
 db.execute("INSERT INTO reports(id,submission_id,reason,details) VALUES(?,?,?,?)",
@@ -23,7 +24,9 @@ print("PASS: D1 SQL migrations, foreign key cascade and report statuses")
 for path in ["functions/api/reports.js","functions/api/admin/reports.js",
              "functions/api/config.js","functions/api/submissions.js","i18n.js",
              "functions/api/marketplace/profiles.js","functions/api/marketplace/jobs.js",
-             "functions/api/marketplace/proposals.js"]:
+             "functions/api/marketplace/proposals.js",
+             "functions/_lib/account-auth.js","functions/api/account/me.js",
+             "functions/api/account/login.js","functions/api/account/registration.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -103,3 +106,35 @@ for path in ["functions/api/marketplace/profiles.js","functions/api/marketplace/
     assert "onRequestPost" in source and ("NOT_ENABLED" in source or "WRITE_DISABLED" in source)
 assert "fetch(" not in (ROOT/"demo/index.html").read_text(encoding="utf-8"), "Demo must not send requests"
 print("PASS: all marketplace writes closed and demo makes no network requests")
+
+# Account schema tests: role constraints, ownership and cascading session cleanup.
+db.execute("INSERT INTO accounts(id,email,role,status,email_verified_at) VALUES(?,?,?,?,?)",
+  ("customer-a","Customer@Example.invalid","customer","active","2026-01-01"))
+db.execute("INSERT INTO accounts(id,email,role,status,email_verified_at) VALUES(?,?,?,?,?)",
+  ("provider-a","provider@example.invalid","provider","active","2026-01-01"))
+try:
+    db.execute("INSERT INTO accounts(id,email,role) VALUES(?,?,?)",("other","customer@example.invalid","customer"))
+    raise AssertionError("Emails must be unique case-insensitively")
+except sqlite3.IntegrityError:
+    pass
+try:
+    db.execute("INSERT INTO accounts(id,email,role) VALUES(?,?,?)",("other","bad@example.invalid","administrator"))
+    raise AssertionError("Admin may not be created through customer schema")
+except sqlite3.IntegrityError:
+    pass
+db.execute("INSERT INTO account_sessions(token_hash,account_id,expires_at) VALUES(?,?,?)",("a"*64,"customer-a",9999999999))
+db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email,status) VALUES(?,?,?,?,?,?,?,?)",
+  ("job-secure","job","Fictitious test job","Higüey","Plomería","Fake description","test@example.invalid","approved"))
+db.execute("INSERT INTO account_jobs(submission_id,account_id) VALUES(?,?)",("job-secure","customer-a"))
+db.execute("INSERT INTO account_provider_profiles(profile_id,account_id) VALUES(?,?)",("provider-1","provider-a"))
+assert db.execute("SELECT account_id FROM account_jobs WHERE submission_id='job-secure'").fetchone()[0]=="customer-a"
+try:
+    db.execute("INSERT INTO account_provider_profiles(profile_id,account_id) VALUES(?,?)",("other-profile","provider-a"))
+    raise AssertionError("Only one provider profile per account")
+except sqlite3.IntegrityError:
+    pass
+db.execute("DELETE FROM accounts WHERE id='customer-a'")
+assert db.execute("SELECT count(*) FROM account_sessions").fetchone()[0]==0
+assert db.execute("SELECT count(*) FROM account_jobs").fetchone()[0]==0
+subprocess.run(["node",str(ROOT/"scripts/check-accounts.mjs")],check=True)
+print("PASS: account schema, email uniqueness, sessions, ownership and role tests")
