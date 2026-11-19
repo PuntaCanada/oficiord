@@ -50,7 +50,7 @@ function render(){
   choose.addEventListener('click',()=>{chooseProvider(state,provider.id);render();});
   card.append(image,title,amount,detail,choose);return card;
  }));
- $('prepare').disabled=!state.selectedProvider||state.offerStatus!=='unprepared';
+ $('prepare').disabled=!state.selectedProvider||state.offerStatus!=='unprepared'||state.view!=='provider';
  $('confirm').disabled=state.offerStatus!=='prepared'||state.view!=='customer';
  $('choice-note').hidden=state.offerStatus!=='selected';
  $('action-hint').textContent=state.offerStatus==='selected'?t.hintSelected:state.offerStatus==='prepared'?t.hintPrepared:state.view==='provider'?t.hintProvider:t.hintCustomer;
