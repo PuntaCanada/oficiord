@@ -20,7 +20,40 @@ el('f-category').insertBefore(new Option('Selecciona un servicio',''),el('f-cate
 el('categories').replaceChildren(...categories.map(([emoji,name,desc])=>{const card=document.createElement('article');card.className='card';const icon=document.createElement('div');icon.className='emoji';icon.textContent=emoji;const title=document.createElement('h3');title.textContent=name;const text=document.createElement('p');text.textContent=desc;card.append(icon,title,text);return card;}));
 async function jobs(){el('jobs').textContent='Cargando…';try{const params=new URLSearchParams({kind:'job',city:el('city').value,category:el('category').value});const r=await fetch('/api/submissions?'+params);if(!r.ok)throw Error();const data=await r.json();el('jobs').replaceChildren();if(!data.items?.length){el('jobs').textContent='Todavía no hay trabajos aprobados para estos filtros.';return;}for(const item of data.items){const article=document.createElement('article');article.className='job';const h=document.createElement('h3');h.textContent=item.title;const m=document.createElement('small');m.textContent=item.city+' · '+item.category;const p=document.createElement('p');p.textContent=item.description;article.append(h,m,p);el('jobs').append(article);}}catch{el('jobs').innerHTML='<div class="empty">El tablón está pendiente de configurar. Todavía no se aceptan solicitudes.</div>';}}
 el('find').onclick=jobs;
-async function openForm(k){kind=k;el('form-title').textContent=k==='job'?'Publicar un trabajo':'Crear perfil profesional';el('status').textContent='';el('form').reset();el('dialog').showModal();if(!sitekey){try{const r=await fetch('/api/config');const d=await r.json();sitekey=d.turnstileSiteKey||null;}catch{}}el('captcha').textContent='';captchaWidget=null;if(sitekey&&window.turnstile){captchaWidget=window.turnstile.render('#captcha',{sitekey});}else{el('status').textContent='El formulario estará disponible cuando termine la configuración de seguridad.';}}
+async function openForm(k){
+ kind=k;
+ el('form-title').textContent=k==='job'?'Publicar un trabajo':'Crear perfil profesional';
+ el('status').textContent='Comprobando disponibilidad…';
+ el('form').reset();
+ el('send').disabled=true;
+ el('dialog').showModal();
+ let enabled=false;
+ try{
+  const r=await fetch('/api/config',{cache:'no-store'});
+  if(!r.ok)throw Error('CONFIG_UNAVAILABLE');
+  const d=await r.json();
+  enabled=d.submissionsEnabled===true;
+  sitekey=enabled?d.turnstileSiteKey:null;
+ }catch{}
+ if(!el('dialog').open)return;
+ if(!enabled||!sitekey){
+  el('status').textContent='Registro temporalmente cerrado durante la preparación legal y de seguridad. No envíes datos personales todavía.';
+  return;
+ }
+ el('status').textContent='Preparando verificación de seguridad…';
+ for(let i=0;i<20&&!window.turnstile;i++)await new Promise(resolve=>setTimeout(resolve,150));
+ if(!el('dialog').open)return;
+ if(!window.turnstile){el('status').textContent='No se pudo cargar la verificación. Inténtalo más tarde.';return;}
+ try{
+  if(captchaWidget!==null)window.turnstile.remove(captchaWidget);
+  el('captcha').textContent='';
+  captchaWidget=window.turnstile.render('#captcha',{sitekey});
+  el('send').disabled=false;
+  el('status').textContent='';
+ }catch{
+  el('status').textContent='No se pudo iniciar la verificación.';
+ }
+}
 document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>openForm(b.dataset.kind));el('close').onclick=()=>el('dialog').close();
 el('form').onsubmit=async e=>{e.preventDefault();el('status').textContent='';const token=captchaWidget!==null&&window.turnstile?window.turnstile.getResponse(captchaWidget):'';if(!token){el('status').textContent='Verificación de seguridad no disponible.';return;}const data={kind,title:el('title').value,city:el('f-city').value,category:el('f-category').value,description:el('description').value,contact_email:el('email').value,website:el('website').value,consent:el('consent').checked,turnstileToken:token};el('send').disabled=true;try{const r=await fetch('/api/submissions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});const d=await r.json();if(!r.ok)throw Error(d.error||'SERVER_ERROR');el('status').textContent='Solicitud recibida. Pendiente de revisión.';el('form').reset();}catch(e){el('status').textContent='No se pudo enviar ('+e.message+').';if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);}finally{el('send').disabled=false;}};
 jobs();
