@@ -1,0 +1,48 @@
+name: Check OficioRD language routes
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'en/**'
+      - 'de/**'
+      - 'fr/**'
+      - 'ht/**'
+      - 'i18n.js'
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - '.github/workflows/check-localized-pages.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Verify all public language pages without changing data
+        shell: bash
+        run: |
+          set -euo pipefail
+          for lang in es en de fr ht; do
+            if [ "$lang" = "es" ]; then path="/"; else path="/$lang/"; fi
+            ok=false
+            for attempt in 1 2 3 4 5 6 7 8; do
+              status=$(curl --silent --show-error --location --max-time 20 --output /tmp/oficiord-page.html --write-out '%{http_code}' "https://oficiord.pages.dev$path") || status=000
+              if [ "$status" = 200 ] && grep -q "<html lang=\"$lang\">" /tmp/oficiord-page.html && grep -q "hreflang=\"ht\"" /tmp/oficiord-page.html; then
+                echo "PASS $path (HTTP 200, lang=$lang, hreflang)"
+                ok=true
+                break
+              fi
+              echo "$path attempt $attempt -> HTTP $status or wrong language"
+              sleep 10
+            done
+            if [ "$ok" != true ]; then echo "::error::Localized page $path not ready"; exit 1; fi
+          done
+          curl --fail --silent --show-error --max-time 20 https://oficiord.pages.dev/sitemap.xml -o /tmp/sitemap.xml
+          python3 -c 'import xml.etree.ElementTree as ET; r=ET.parse("/tmp/sitemap.xml").getroot(); ns={"s":"http://www.sitemaps.org/schemas/sitemap/0.9"}; paths={x.text for x in r.findall("s:url/s:loc",ns)}; expected={"https://oficiord.pages.dev"+p for p in ["/","/en/","/de/","/fr/","/ht/"]}; assert paths==expected,(paths,expected); print("PASS sitemap with five routes")'
+          curl --fail --silent --show-error --max-time 20 https://oficiord.pages.dev/robots.txt | grep -q 'Sitemap: https://oficiord.pages.dev/sitemap.xml'
+          echo "PASS robots.txt"
