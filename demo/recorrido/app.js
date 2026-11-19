@@ -1,0 +1,80 @@
+import {jobs,providers,matchedProviders,quoteFor,jobById,supportedLanguages,initialJourney,setJob,setView,chooseProvider,prepareOffer,confirmOffer,mockMessage,resetJourney} from './state.mjs';
+const $=id=>document.getElementById(id);
+const photo={ac:'hvac',plumbing:'plumbing',electric:'electric',clean:'cleaning',paint:'cleaning',appliance:'appliances'};
+const dictionary={
+es:{eyebrow:'DOS PERSPECTIVAS · UNA SOLA DEMO',heading:'Del cliente al profesional: un mismo trabajo ficticio.',intro:'Cambia de perspectiva y observa cómo la misma solicitud, oferta y conversación cambian sin salir de la página.',notice:'Solo demo: cuentas, clientes, profesionales, precios y mensajes son inventados. Nada se transmite ni se almacena.',back:'← Demostraciones',more:'Más idiomas ▾',jobLabel:'Trabajo de ejemplo',perspectiveLabel:'Perspectiva',customer:'Cliente',provider:'Profesional',badge:'EJEMPLO FICTICIO · SIN DATOS PERSONALES',open:'1 · Solicitud',prepared:'2 · Oferta preparada',selected:'3 · Seleccionada',offersTitle:'Una misma solicitud, perfiles compatibles',offersIntro:'Solo profesionales ficticios que cubren la categoría y región. Los importes no son precios reales.',noOffers:'No hay perfiles de muestra para esta solicitud.',choiceNote:'Opción ficticia seleccionada. No se ha contratado a nadie.',prepare:'Preparar oferta de muestra',confirm:'Simular selección',choose:'Elegir este perfil',chosen:'Perfil elegido',days:'días de ejemplo',price:'Precio ficticio',hintCustomer:'Como cliente, elige un perfil compatible para comenzar.',hintProvider:'Como profesional, prepara una oferta ficticia para continuar.',hintPrepared:'Oferta ficticia preparada. Cambia de perspectiva para ver el mismo estado.',hintSelected:'Selección simulada en ambas perspectivas. No existe contrato.',messagesTitle:'El mismo diálogo ficticio',messagesIntro:'Mensajes predefinidos y locales: las dos perspectivas ven el mismo ejemplo.',msgCustomer:'Cliente ficticio',msgProvider:'Profesional ficticio',lineCustomer:'Hola, quisiera saber más sobre este trabajo de ejemplo.',lineProvider:'Podemos preparar una oferta de demostración para este trabajo.',replyOne:'Preguntar por fecha',replyTwo:'Preguntar por materiales',responseOne:'¿En qué fecha ficticia podría hacerse?',responseTwo:'¿Qué materiales imaginarios incluiría?',messageNote:'No es un chat real. Pulsar no envía ninguna comunicación.',customerDemo:'Vista cliente independiente',providerDemo:'Vista profesional independiente',reset:'Reiniciar demo',footer:'OficioRD · Prototipo sin cuentas ni operaciones reales.'},
+en:{eyebrow:'TWO PERSPECTIVES · ONE DEMO',heading:'One fictional job, customer and professional together.',intro:'Switch perspectives and watch the same request, offer and conversation update without leaving this page.',notice:'Demo only: all accounts, customers, professionals, amounts and messages are imaginary. Nothing is transmitted or saved.',back:'← All demos',more:'More languages ▾',jobLabel:'Example job',perspectiveLabel:'Perspective',customer:'Customer',provider:'Professional',badge:'FICTIONAL EXAMPLE · NO PERSONAL DATA',open:'1 · Request',prepared:'2 · Offer prepared',selected:'3 · Selected',offersTitle:'One request, compatible profiles',offersIntro:'Only fictional professionals matching the service and location. Amounts are not real market prices.',noOffers:'No sample professionals for this request.',choiceNote:'A fictional option was selected. Nobody was hired.',prepare:'Prepare sample offer',confirm:'Simulate selection',choose:'Choose this profile',chosen:'Chosen profile',days:'example days',price:'Fictional amount',hintCustomer:'As customer, choose a matching profile to start.',hintProvider:'As professional, prepare a fictional offer to continue.',hintPrepared:'Fictional offer prepared; switch views to see the same status.',hintSelected:'Selection simulated in both perspectives. No contract exists.',messagesTitle:'The same fictional conversation',messagesIntro:'Prewritten local messages, visible from either perspective.',msgCustomer:'Fictional customer',msgProvider:'Fictional professional',lineCustomer:'Hello, I would like to know more about this sample job.',lineProvider:'We can prepare a sample quote for this fictional job.',replyOne:'Ask about date',replyTwo:'Ask about materials',responseOne:'On which imaginary date would it be done?',responseTwo:'Which fictional materials would be included?',messageNote:'Not a real chat. Nothing is sent when you click.',customerDemo:'Independent customer demo',providerDemo:'Independent professional demo',reset:'Reset demo',footer:'OficioRD · Prototype without real accounts or actions.'},
+de:{eyebrow:'ZWEI SICHTEN · EINE DEMO',heading:'Ein fiktiver Auftrag – Kunden- und Handwerkersicht.',intro:'Wechsle die Perspektive und verfolge denselben Beispielauftrag, dasselbe Angebot und denselben Nachrichtenverlauf.',notice:'Nur Demo: Konten, Kunden, Handwerker, Preise und Nachrichten sind erfunden. Es wird nichts übertragen oder gespeichert.',back:'← Alle Demos',more:'Weitere Sprachen ▾',jobLabel:'Beispielauftrag',perspectiveLabel:'Perspektive',customer:'Kunde',provider:'Handwerker',badge:'FIKTIVES BEISPIEL · KEINE PERSÖNLICHEN DATEN',open:'1 · Auftrag',prepared:'2 · Angebot vorbereitet',selected:'3 · Ausgewählt',offersTitle:'Ein Auftrag, passende Beispielprofile',offersIntro:'Nur fiktive Anbieter, die Dienstleistung und Region abdecken. Keine echten Marktpreise.',noOffers:'Für diesen Auftrag gibt es keine passenden Beispielprofile.',choiceNote:'Eine fiktive Option wurde ausgewählt. Niemand wurde beauftragt.',prepare:'Beispielangebot vorbereiten',confirm:'Auswahl simulieren',choose:'Dieses Profil wählen',chosen:'Ausgewähltes Profil',days:'fiktive Tage',price:'Fiktiver Betrag',hintCustomer:'Wähle als Kunde einen passenden Handwerker aus.',hintProvider:'Bereite als Handwerker ein fiktives Angebot vor.',hintPrepared:'Beispielangebot vorbereitet. In beiden Perspektiven ist derselbe Status sichtbar.',hintSelected:'Auswahl in beiden Perspektiven simuliert – kein Vertrag.',messagesTitle:'Gemeinsamer fiktiver Nachrichtenverlauf',messagesIntro:'Vorgefertigte Nachrichten, die aus beiden Perspektiven gleich dargestellt werden.',msgCustomer:'Fiktiver Kunde',msgProvider:'Fiktiver Handwerker',lineCustomer:'Hallo, ich hätte eine Frage zu diesem Beispielauftrag.',lineProvider:'Wir können ein fiktives Angebot für diesen Auftrag vorbereiten.',replyOne:'Nach Termin fragen',replyTwo:'Nach Material fragen',responseOne:'An welchem fiktiven Datum wäre das möglich?',responseTwo:'Welches Beispielmaterial wäre enthalten?',messageNote:'Kein echter Chat. Ein Klick sendet keine Nachricht.',customerDemo:'Eigenständige Kundendemo',providerDemo:'Eigenständige Handwerkerdemo',reset:'Demo zurücksetzen',footer:'OficioRD · Prototyp ohne echte Konten und Aktionen.'},
+fr:{eyebrow:'DEUX PERSPECTIVES · UNE DÉMO',heading:'Un travail fictif, côté client et artisan.',intro:'Changez de perspective pour voir la même demande, offre et conversation sur une seule page.',notice:'Démonstration : comptes, clients, artisans, prix et messages sont imaginaires. Rien ne se transmet ni ne se conserve.',back:'← Toutes les démos',more:'Autres langues ▾',jobLabel:'Travail fictif',perspectiveLabel:'Perspective',customer:'Client',provider:'Artisan',badge:'EXEMPLE FICTIF · AUCUNE DONNÉE PERSONNELLE',open:'1 · Demande',prepared:'2 · Devis préparé',selected:'3 · Sélectionné',offersTitle:'Une demande, des profils adaptés',offersIntro:'Profils fictifs uniquement selon service et région. Ce ne sont pas des prix réels.',noOffers:'Aucun profil de démonstration adapté.',choiceNote:'Option fictive choisie, sans aucun contrat.',prepare:'Préparer un devis fictif',confirm:'Simuler la sélection',choose:'Choisir ce profil',chosen:'Profil choisi',days:'jours fictifs',price:'Montant fictif',hintCustomer:'Côté client, choisissez un profil adapté.',hintProvider:'Côté artisan, préparez un devis fictif.',hintPrepared:'Devis fictif préparé ; le même statut apparaît des deux côtés.',hintSelected:'Sélection simulée des deux côtés, sans contrat.',messagesTitle:'Même conversation fictive',messagesIntro:'Messages pré-écrits sur la même page, pour chaque perspective.',msgCustomer:'Client fictif',msgProvider:'Artisan fictif',lineCustomer:'Bonjour, je voudrais connaître les détails de ce travail fictif.',lineProvider:'Nous pouvons préparer un devis d’exemple.',replyOne:'Demander la date',replyTwo:'Demander le matériel',responseOne:'À quelle date imaginaire cela pourrait-il se faire ?',responseTwo:'Quels matériaux fictifs seraient inclus ?',messageNote:'Ce n’est pas une vraie messagerie. Aucun message n’est transmis.',customerDemo:'Démo client indépendante',providerDemo:'Démo artisan indépendante',reset:'Réinitialiser',footer:'OficioRD · Prototype sans comptes réels.'},
+ht:{eyebrow:'DE PESPEKTIV · YON DEMO',heading:'Yon travay envante, pou kliyan ak pwofesyonèl.',intro:'Chanje pespektiv epi wè menm demann, menm òf ak menm mesaj sou yon sèl paj.',notice:'Demo sèlman: kont, kliyan, pwofesyonèl, pri ak mesaj yo envante. Pa gen anyen ki voye oswa estoke.',back:'← Tout demo yo',more:'Lòt lang ▾',jobLabel:'Travay egzanp',perspectiveLabel:'Pespektiv',customer:'Kliyan',provider:'Pwofesyonèl',badge:'EGZANP ENVANTE · PA GEN DONE PÈSONÈL',open:'1 · Demann',prepared:'2 · Òf prepare',selected:'3 · Chwazi',offersTitle:'Yon demann, pwofil ki matche',offersIntro:'Pwofil envante ki matche ak sèvis ak zòn sèlman. Se pa pri reyèl.',noOffers:'Pa gen pwofil egzanp ki matche.',choiceNote:'Yon opsyon envante chwazi. Pa gen kontra.',prepare:'Prepare òf egzanp',confirm:'Simile chwa',choose:'Chwazi pwofil sa a',chosen:'Pwofil chwazi',days:'jou envante',price:'Kantite envante',hintCustomer:'Kòm kliyan, chwazi yon pwofil ki matche.',hintProvider:'Kòm pwofesyonèl, prepare yon òf envante.',hintPrepared:'Òf envante prepare. De pespektiv yo montre menm estati.',hintSelected:'Chwa simile pou de bò yo. Pa gen kontra.',messagesTitle:'Menm konvèsasyon envante',messagesIntro:'Mesaj pare, vizib nan de pespektiv yo.',msgCustomer:'Kliyan envante',msgProvider:'Pwofesyonèl envante',lineCustomer:'Bonjou, mwen gen yon kesyon sou travay egzanp sa a.',lineProvider:'Nou ka prepare yon òf demonstrasyon pou travay sa a.',replyOne:'Mande kilè',replyTwo:'Mande materyèl',responseOne:'Nan ki dat envante sa ta fèt?',responseTwo:'Ki materyèl envante ki ta ladan l?',messageNote:'Se pa yon chat reyèl. Pa gen mesaj ki voye.',customerDemo:'Demo kliyan apa',providerDemo:'Demo pwofesyonèl apa',reset:'Rekòmanse demo a',footer:'OficioRD · Pwototip san kont oswa operasyon reyèl.'}
+};
+const state=initialJourney();
+let lang=new URLSearchParams(location.search).get('lang');
+if(!supportedLanguages.includes(lang))lang='es';
+const categoryPhotos={ac:'hvac',plumbing:'plumbing',electric:'electric',clean:'cleaning',paint:'cleaning',appliance:'appliances'};
+const make=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
+const currency=n=>'RD$ '+n.toLocaleString('en-US');
+function render(){
+ const t=dictionary[lang],job=jobById(state.jobId),matched=matchedProviders(job.id);
+ document.documentElement.lang=lang;
+ const ids={eyebrow:t.eyebrow,heading:t.heading,intro:t.intro,notice:t.notice,back:t.back,'more-label':t.more,'job-label':t.jobLabel,'perspective-label':t.perspectiveLabel,'view-customer':t.customer,'view-provider':t.provider,'job-badge':t.badge,'phase-open':t.open,'phase-prepared':t.prepared,'phase-selected':t.selected,'offers-title':t.offersTitle,'offers-intro':t.offersIntro,'no-offers':t.noOffers,'choice-note':t.choiceNote,prepare:t.prepare,confirm:t.confirm,'messages-title':t.messagesTitle,'messages-intro':t.messagesIntro,'reply-one':t.replyOne,'reply-two':t.replyTwo,'message-note':t.messageNote,'customer-demo':t.customerDemo,'provider-demo':t.providerDemo,reset:t.reset,footer:t.footer};
+ for(const [id,value] of Object.entries(ids))$(id).textContent=value;
+ $('back').href='/demo/?lang='+lang;
+ $('customer-demo').href='/demo/cliente/?lang='+lang;
+ $('provider-demo').href='/demo/profesional/?lang='+lang;
+ document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
+ $('languages-more').open=false;
+ $('job').replaceChildren(...jobs.map(x=>new Option(x.title[lang],x.id)));
+ $('job').value=state.jobId;
+ for(const view of ['customer','provider'])$('view-'+view).setAttribute('aria-pressed',String(state.view===view));
+ $('job-title').textContent=job.title[lang];
+ $('job-meta').textContent=job.region+' · '+job.category.toUpperCase();
+ $('job-description').textContent=job.description[lang];
+ $('job-image').src='/assets/oficiord-'+categoryPhotos[job.category]+'.webp';
+ $('job-image').alt=job.title[lang]+' · demo';
+ const phase=['unprepared','prepared','selected'].indexOf(state.offerStatus);
+ for(const [i,key] of ['open','prepared','selected'].entries()){
+  $('phase-'+key).dataset.current=String(phase===i);
+  $('phase-'+key).dataset.done=String(phase>i);
+ }
+ $('no-offers').hidden=matched.length!==0;
+ $('offers').replaceChildren(...matched.map(provider=>{
+  const q=quoteFor(job.id,provider.id);
+  const card=make('article',undefined,'offer'+(state.selectedProvider===provider.id?' active':''));
+  const image=make('img');image.src='/assets/oficiord-'+provider.photo+'.webp';image.alt=provider.name+' · demo';image.loading='lazy';
+  const title=make('h3',provider.name);
+  const amount=make('div',currency(q.amount),'price');
+  const detail=make('p',q.days+' '+t.days+' · '+job.region);
+  const choose=make('button',state.selectedProvider===provider.id?t.chosen:t.choose,'secondary');
+  choose.type='button';choose.setAttribute('aria-pressed',String(state.selectedProvider===provider.id));
+  choose.addEventListener('click',()=>{chooseProvider(state,provider.id);render();});
+  card.append(image,title,amount,detail,choose);return card;
+ }));
+ $('prepare').disabled=!state.selectedProvider||state.offerStatus!=='unprepared'||state.view!=='provider';
+ $('confirm').disabled=state.offerStatus!=='prepared'||state.view!=='customer';
+ $('choice-note').hidden=state.offerStatus!=='selected';
+ $('action-hint').textContent=state.offerStatus==='selected'?t.hintSelected:state.offerStatus==='prepared'?t.hintPrepared:state.view==='provider'?t.hintProvider:t.hintCustomer;
+ renderThread(t);
+}
+function renderThread(t){
+ $('reply-one').disabled=!state.selectedProvider;
+ $('reply-two').disabled=!state.selectedProvider;
+ if(!state.selectedProvider){$('thread').replaceChildren(make('p',t.hintCustomer,'muted'));return;}
+ const bubble=(author,body,cls)=>{const el=make('div',undefined,'bubble '+cls);el.append(make('strong',author),make('span',body));return el;};
+ const thread=[bubble(t.msgCustomer,t.lineCustomer,'customer'),bubble(t.msgProvider,t.lineProvider,'provider')];
+ if(state.reply>=0)thread.push(bubble(t.msgCustomer,state.reply===0?t.responseOne:t.responseTwo,'customer'));
+ $('thread').replaceChildren(...thread);
+}
+$('job').addEventListener('change',()=>{setJob(state,$('job').value);render();});
+for(const view of ['customer','provider'])$('view-'+view).addEventListener('click',()=>{setView(state,view);render();});
+$('prepare').addEventListener('click',()=>{prepareOffer(state);render();});
+$('confirm').addEventListener('click',()=>{confirmOffer(state);render();});
+$('reply-one').addEventListener('click',()=>{mockMessage(state,0);renderThread(dictionary[lang]);});
+$('reply-two').addEventListener('click',()=>{mockMessage(state,1);renderThread(dictionary[lang]);});
+$('reset').addEventListener('click',()=>{resetJourney(state);render();});
+document.querySelectorAll('[data-lang]').forEach(button=>button.addEventListener('click',()=>{
+ lang=button.dataset.lang;
+ const url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url);
+ render();
+}));
+render();
