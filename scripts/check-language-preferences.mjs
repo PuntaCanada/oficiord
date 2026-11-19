@@ -12,6 +12,19 @@ for(const [lang,path] of Object.entries(paths)){
  assert.match(html,new RegExp('src="/flags/'+lang+'\\.svg"'));
  assert.match(html,new RegExp('data-language="'+lang+'"'));
  assert.match(html,/<div class="language-options"/);
+ assert.match(html,/<div class="language-controls"/);
+ const top=html.slice(html.indexOf('<div class="language-controls"'),html.indexOf('<details id="language-picker"'));
+ const menu=html.slice(html.indexOf('<details id="language-picker"'),html.indexOf('</details>',html.indexOf('<details id="language-picker"')));
+ for(const visible of ['es','en']){
+  assert.ok(top.includes('data-language="'+visible+'"'),path+' '+visible+' must be directly visible');
+  assert.ok(top.includes('src="/flags/'+visible+'.svg"'),path+' direct flag missing');
+  assert.ok(!menu.includes('data-language="'+visible+'"'),path+' '+visible+' must not be in dropdown');
+ }
+ for(const hidden of ['de','fr','ht']){
+  assert.ok(!top.includes('data-language="'+hidden+'"'),path+' '+hidden+' must not be directly visible');
+  assert.ok(menu.includes('data-language="'+hidden+'"'),path+' dropdown '+hidden+' missing');
+  assert.ok(menu.includes('src="/flags/'+hidden+'.svg"'),path+' dropdown flag missing');
+ }
  for(const langOption of Object.keys(languages)){
   assert.ok(html.includes('src="/flags/'+langOption+'.svg"'),path+' missing '+langOption+' flag');
   assert.ok(html.includes('data-language="'+langOption+'"'),path+' missing '+langOption+' link');
@@ -21,6 +34,16 @@ for(const [lang,path] of Object.entries(paths)){
 }
 const account=await read('account/index.html');
 assert.match(account,/<details class="account-lang-menu"/);
+const accountTop=account.slice(account.indexOf('<div class="account-lang-controls"'),account.indexOf('<details class="account-lang-menu"'));
+const accountMenu=account.slice(account.indexOf('<details class="account-lang-menu"'),account.indexOf('</details>',account.indexOf('<details class="account-lang-menu"')));
+for(const visible of ['es','en']){
+ assert.ok(accountTop.includes('data-lang="'+visible+'"'));
+ assert.ok(!accountMenu.includes('data-lang="'+visible+'"'));
+}
+for(const hidden of ['de','fr','ht']){
+ assert.ok(!accountTop.includes('data-lang="'+hidden+'"'));
+ assert.ok(accountMenu.includes('data-lang="'+hidden+'"'));
+}
 assert.match(account,/let selectedLanguage=supported\(selected\)\?selected:'es'/);
 for(const lang of Object.keys(languages)){
  assert.ok(account.includes('data-lang="'+lang+'"'));
@@ -50,4 +73,4 @@ assert.equal(route({browser:['de-DE'],saved:'de'}).lang,'es');
 assert.equal(route({path:'/en/'}).lang,'en');
 assert.equal(route({path:'/de/'}).lang,'de');
 assert.deepEqual(route({query:'?lang=fr'}).actions,['/fr/']);
-console.log('PASS: Spanish root always, explicit language URLs, static SVG flags, account demo language menu');
+console.log('PASS: Spanish root, visible ES/EN flag links, other 3 flags in dropdown, account demo');
