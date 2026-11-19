@@ -40,6 +40,13 @@ const builderCopy={"es":["NUEVO · DEMOSTRACIÓN","Crea un trabajo ficticio y co
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 let language=Object.hasOwn(words,params.get('lang'))?params.get('lang'):'es';
+// Accept only recognized GET filter values from the homepage. No persistence.
+const validCities=new Set(['Higüey','Bávaro','Punta Cana','Verón']);
+const validCategories=new Set(['ac','plumbing','electric','clean','paint','appliance']);
+const initialCity=params.get('city'),initialCategory=params.get('category'),initialQuery=params.get('q');
+if(validCities.has(initialCity))$('city').value=initialCity;
+if(validCategories.has(initialCategory))$('category').value=initialCategory;
+if(initialQuery)$('q').value=initialQuery.slice(0,60);
 const norm=v=>String(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function filterItems(items,type){
  const city=$('city').value,cat=$('category').value,q=norm($('q').value.trim());
@@ -89,6 +96,12 @@ function openProfile(profileId){
  $('profile-title').textContent=item.name;
  $('profile-city').textContent=item.city+' · '+t.fiction;
  $('profile-bio').textContent=item.bio;
+ let facts=$('od-profile-facts');
+ if(!facts){facts=document.createElement('dl');facts.id='od-profile-facts';facts.className='od-profile-facts';$('profile-bio').after(facts);}
+ const captions={es:['Especialidades de ejemplo','Zonas de ejemplo','Estado'],en:['Sample specialties','Sample areas','Status'],de:['Beispiel-Leistungen','Beispiel-Regionen','Status'],fr:['Spécialités fictives','Zones fictives','Statut'],ht:['Sèvis egzanp','Zòn egzanp','Eta']};
+ const unverified={es:'Perfil ficticio · sin verificación',en:'Fictional profile · not verified',de:'Fiktives Profil · nicht verifiziert',fr:'Profil fictif · non vérifié',ht:'Pwofil envante · pa verifye'};
+ const vals=[item.cats.map(cat=>cats[cat][language]).join(' · '),item.service.join(' · '),unverified[language]];
+ facts.replaceChildren(...captions[language].flatMap((label,i)=>{const term=document.createElement('dt');term.textContent=label;const val=document.createElement('dd');val.textContent=vals[i];return [term,val];}));
  $('profile-services-heading').textContent=t.servicesTitle;
  $('profile-areas-heading').textContent=t.areas;
  $('profile-samples-heading').textContent=t.galleryTitle;
@@ -181,6 +194,15 @@ function refresh(){
  $('job-count').textContent=filteredJobs.length+' '+t.count;$('pro-count').textContent=filteredPros.length+' '+t.count;
  $('jobs-empty').hidden=filteredJobs.length!==0;$('pros-empty').hidden=filteredPros.length!==0;
  $('jobs-empty').textContent=t.empty;$('pros-empty').textContent=t.empty;
+ for(const id of ['jobs-empty','pros-empty']){
+   const target=$(id);target.setAttribute('role','status');
+   if(!target.hidden){
+    const reset=document.createElement('button');reset.type='button';reset.className='btn-secondary od-empty-reset';
+    reset.textContent=({es:'Restablecer filtros',en:'Reset filters',de:'Filter zurücksetzen',fr:'Réinitialiser les filtres',ht:'Retabli filtè yo'})[language];
+    reset.onclick=()=>{$('clear').click();$('q').focus();};
+    target.append(document.createElement('br'),reset);
+   }
+ }
  const previousJob=$('job').value;
  $('job').replaceChildren(...jobs.map(x=>new Option(jobText(x).title,x.id)));
  $('job').value=jobs.some(x=>x.id===previousJob)?previousJob:jobs[0].id;
@@ -232,4 +254,8 @@ $('offer-form').onsubmit=e=>{
  $('result').textContent=words[language].result;
 };
 render();
+if(validCities.has(initialCity)||validCategories.has(initialCategory)||initialQuery){
+ const filterSection=$('city').closest('section');
+ if(filterSection)filterSection.setAttribute('aria-label',({es:'Filtros de búsqueda aplicados',en:'Applied search filters',de:'Aktive Suchfilter',fr:'Filtres de recherche appliqués',ht:'Filtè rechèch aktif'})[language]);
+}
 </script></body></html>

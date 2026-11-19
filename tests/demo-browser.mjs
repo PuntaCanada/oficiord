@@ -48,6 +48,32 @@ for(const width of [390,768,1365]){
   console.log('PASS',width,'customer journey navigation');
  }catch(e){failures++;console.error('FAIL navigation',width,e.message)}
  await page.close();
+ // End-to-end, read-only discovery: homepage -> filtered example market -> profile.
+ const journey=await context.newPage();
+ const networkWrites=[],journeyErrors=[];
+ journey.on('request',req=>{if(!['GET','HEAD'].includes(req.method()))networkWrites.push(req.method()+' '+req.url())});
+ journey.on('pageerror',e=>journeyErrors.push(e.message));
+ try{
+  await journey.goto(base+'/',{waitUntil:'networkidle'});
+  await journey.locator('#od-find-service').selectOption('ac');
+  await journey.locator('#od-find-zone').selectOption('Higüey');
+  await journey.locator('.od-find-submit').click();
+  await journey.waitForURL(url=>url.pathname==='/demo/'&&url.searchParams.get('category')==='ac');
+  if(await journey.locator('#category').inputValue()!=='ac')throw new Error('Service filter was lost');
+  if(await journey.locator('#city').inputValue()!=='Higüey')throw new Error('Zone filter was lost');
+  if(await journey.locator('#pros .card').count()!==1)throw new Error('Expected one fictional matching profile');
+  await journey.locator('#pros .profile-card-action').first().click();
+  await journey.locator('#profile-dialog[open] #od-profile-facts').waitFor();
+  if(!(await journey.locator('#od-profile-facts').innerText()).includes('sin verificación'))throw new Error('Fictional verification disclaimer missing');
+  await journey.locator('#profile-close').click();
+  await journey.locator('#q').fill('no-match-example-97391');
+  await journey.locator('#jobs-empty:not([hidden]) .od-empty-reset').click();
+  if(await journey.locator('#q').inputValue()!=='')throw new Error('Empty state reset did not clear the query');
+  if(networkWrites.length)throw new Error('Unexpected POST/PUT during demo journey '+networkWrites.join(', '));
+  if(journeyErrors.length)throw new Error('Demo journey JavaScript '+journeyErrors.join('; '));
+  console.log('PASS',width,'homepage search, profile, empty state and read-only journey');
+ }catch(e){failures++;console.error('FAIL guided journey',width,e.message)}
+ await journey.close();
  await context.close();
 }
 await browser.close();

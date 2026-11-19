@@ -92,3 +92,13 @@
  #phase-prepared,#phase-selected){color:#2e5267}
 :is(.photo-note,#t-noticeInline,#t-youCreated,#preview-meta){color:#31566b}
 :is(footer,#footer,#t-footer){color:#405c6b}
+
+/* Final demo profile disclosure and responsive customer-to-professional flow. */
+.od-profile-facts{display:grid;grid-template-columns:minmax(105px,170px) minmax(0,1fr);gap:9px 15px;padding:17px 18px;margin:17px 0 4px;background:#f2f8fb;border:1px solid #d5e6ed;border-radius:13px;line-height:1.55}
+.od-profile-facts dt{font-weight:800;color:#264d66}
+.od-profile-facts dd{margin:0;color:#365367;overflow-wrap:anywhere}
+.od-empty-reset{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;min-height:44px;background:#dcecf4;color:#194963;border:1px solid #9cc4d7;border-radius:9px}
+:where(.od-empty-reset):focus-visible{outline:3px solid #b97917;outline-offset:3px}
+:is(.profile-content,.job-modal-content,.panel,.section){min-width:0}
+:is(.profile-modal,.job-modal){overscroll-behavior:contain}
+@media(max-width:620px){.od-profile-facts{grid-template-columns:1fr;gap:4px;padding:15px}.od-profile-facts dd{margin-bottom:10px}.od-profile-facts dd:last-child{margin:0}}
