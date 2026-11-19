@@ -33,7 +33,7 @@ for path in ["functions/api/reports.js","functions/api/admin/reports.js",
              "functions/api/account/verify.js","functions/_lib/magic-link.js",
              "functions/_lib/session-lifecycle.js","functions/api/account/logout.js",
              "functions/api/account/export.js","functions/api/account/sessions.js",
-             "functions/api/account/privacy.js"]:
+             "functions/api/account/privacy.js","functions/_lib/login-abuse.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -206,3 +206,19 @@ assert "ACCOUNTS_ENABLED" in (ROOT/"functions/api/account/sessions.js").read_tex
 assert "PRIVACY_REQUESTS_NOT_ENABLED" in (ROOT/"functions/api/account/privacy.js").read_text(encoding="utf-8")
 subprocess.run(["node",str(ROOT/"scripts/check-account-privacy.mjs")],check=True)
 print("PASS: privacy schema, owner scoping, session redaction and closed intake")
+
+# Simulate the exact atomic quota query against SQLite in memory.
+quota_sql = """INSERT INTO account_login_limits(key_hash,attempts,expires_at) VALUES(?,1,?)
+ON CONFLICT(key_hash) DO UPDATE SET
+attempts=CASE WHEN expires_at<=? THEN 1 ELSE attempts+1 END,
+expires_at=CASE WHEN expires_at<=? THEN ? ELSE expires_at END
+WHERE account_login_limits.expires_at<=? OR account_login_limits.attempts<?
+RETURNING attempts,expires_at"""
+def charge_quota(now,maximum=3):
+    return db.execute(quota_sql,("f"*64,now+3600,now,now,now+3600,now,maximum)).fetchone()
+for n in (1,2,3):
+    assert charge_quota(1700000000)==(n,1700003600)
+assert charge_quota(1700000000) is None, "Rate limit must deny over quota"
+assert charge_quota(1700003600)==(1,1700007200), "Expired bucket must reset"
+subprocess.run(["node",str(ROOT/"scripts/check-login-abuse.mjs")],check=True)
+print("PASS: atomic SQLite throttling and HMAC abuse protection")
