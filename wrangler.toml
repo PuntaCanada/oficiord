@@ -1,0 +1,6 @@
+name = "oficiord"
+pages_build_output_dir = "."
+compatibility_date = "2026-11-19"
+
+# Create D1 database and set its binding DB in Cloudflare Pages project settings.
+# Set TURNSTILE_SITE_KEY as an environment variable and TURNSTILE_SECRET as a secret.
