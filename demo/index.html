@@ -175,7 +175,9 @@ function refresh(){
  $('job-count').textContent=filteredJobs.length+' '+t.count;$('pro-count').textContent=filteredPros.length+' '+t.count;
  $('jobs-empty').hidden=filteredJobs.length!==0;$('pros-empty').hidden=filteredPros.length!==0;
  $('jobs-empty').textContent=t.empty;$('pros-empty').textContent=t.empty;
+ const previousJob=$('job').value;
  $('job').replaceChildren(...jobs.map(x=>new Option(x.title,x.id)));
+ $('job').value=jobs.some(x=>x.id===previousJob)?previousJob:jobs[0].id;
  updateOfferProfessionals();
 }
 function render(){
