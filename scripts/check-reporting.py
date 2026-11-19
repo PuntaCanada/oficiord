@@ -284,3 +284,5 @@ print("PASS: real SQLite integration for atomic login, replay, expiry, blocked a
 
 # Independent disk-backed, simultaneous connection test of the authentication transaction.
 subprocess.run(["python3",str(ROOT/"scripts/check-concurrent-login.py")],check=True)
+
+subprocess.run(["node",str(ROOT/"scripts/check-dashboard-ownership.mjs")],check=True)
