@@ -38,6 +38,21 @@ async function noHorizontalOverflow(page,width,label){
  assert.ok(info.doc<=info.win+2,label+' document overflow: '+JSON.stringify(info));
  assert.ok(info.body<=info.win+2,label+' body overflow: '+JSON.stringify(info));
 }
+async function navigationChecks(page,path){
+ const nav=page.locator('#demo-cross-navigation nav');
+ await nav.waitFor({state:'visible'});
+ const links=nav.locator('a.od-demo-nav-link');
+ assert.equal(await links.count(),6,path+' must link every demo');
+ assert.equal(await nav.locator('a[aria-current="page"]').count(),1,path+' current page');
+ const locale=new URL(page.url()).searchParams.get('lang')||'es';
+ const paths=await links.evaluateAll(items=>items.map(a=>new URL(a.href).pathname));
+ assert.deepEqual(paths,['/demo/','/demo/crear/','/demo/cliente/','/demo/profesional/','/demo/recorrido/','/demo/startcheck/']);
+ for(const href of await links.evaluateAll(items=>items.map(a=>a.getAttribute('href')))){
+  assert.ok(href.endsWith('?lang='+locale),path+' language not preserved: '+href);
+ }
+ const navOverflow=await nav.evaluate(el=>el.scrollWidth>el.clientWidth+2);
+ assert.equal(navOverflow,false,path+' nav container must not overflow page');
+}
 async function documentChecks(page,path){
  assert.equal(await page.locator('meta[name=robots]').getAttribute('content'),'noindex,nofollow,noarchive',path);
  assert.equal(await page.locator('main').count(),1,path+' main landmark');
@@ -56,18 +71,33 @@ try{
    ['/demo/cliente/?lang=de','#quote-list .quote'],
    ['/demo/profesional/?lang=de','#jobs .job'],
    ['/demo/crear/?lang=de','#draft-next'],
-   ['/demo/startcheck/?lang=de','#blocked-items .item']
+   ['/demo/startcheck/?lang=de','#blocked-items .item'],
+   ['/demo/?lang=de','#jobs .card']
   ]){
    const page=await openPage(context,path);
    await page.locator(ready).first().waitFor({timeout:7000});
    await noHorizontalOverflow(page,width,path);
    await documentChecks(page,path);
+   await navigationChecks(page,path);
    scenarios++;
    await page.close();
   }
   await context.close();
  }
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ // Real navigation between demos must preserve locale and active-tab state.
+ const hub=await openPage(context,'/demo/?lang=de');
+ await hub.locator('#demo-cross-navigation a[href="/demo/crear/?lang=de"]').click();
+ assert.ok(hub.url().includes('/demo/crear/?lang=de'));
+ assert.equal(await hub.locator('#demo-cross-navigation a[aria-current="page"]').getAttribute('href'),'/demo/crear/?lang=de');
+ await hub.locator('[data-lang="en"]').first().click();
+ await hub.locator('#demo-cross-navigation a[href="/demo/cliente/?lang=en"]').waitFor({timeout:4000});
+ await hub.locator('#demo-cross-navigation a[href="/demo/cliente/?lang=en"]').click();
+ assert.ok(hub.url().includes('/demo/cliente/?lang=en'));
+ await hub.locator('#demo-cross-navigation a[aria-current="page"]').waitFor();
+ assert.equal(await hub.locator('#demo-cross-navigation a[aria-current="page"]').getAttribute('href'),'/demo/cliente/?lang=en');
+ scenarios++;
+ await hub.close();
  const journey=await openPage(context,'/demo/recorrido/?lang=de');
  await journey.locator('#offers .offer button').first().click();
  assert.equal(await journey.locator('#prepare').isDisabled(),true,'Customer cannot prepare provider offer');
@@ -90,6 +120,13 @@ try{
  scenarios++;
  await journey.close();
  const quote=await openPage(context,'/demo/crear/?lang=de');
+ await quote.locator('#draft-title').fill('x');
+ await quote.locator('#draft-next').click();
+ assert.equal(await quote.locator('#draft-title').getAttribute('aria-invalid'),'true');
+ assert.equal(await quote.locator('#panel-2').isVisible(),false);
+ assert.equal(await quote.evaluate(()=>document.activeElement?.id),'draft-title');
+ await quote.locator('#draft-title').fill('Beispielprüfung einer Klimaanlage');
+ assert.equal(await quote.locator('#draft-title').getAttribute('aria-invalid'),'false');
  await quote.locator('#draft-next').click();
  assert.ok(await quote.locator('#quote-list .quote-card').count()>=3,'More than two sample quotes');
  await quote.locator('#quote-list .quote-card button').first().click();
@@ -107,6 +144,14 @@ try{
  await provider.locator('#amount').fill('3500');
  await provider.locator('#save-offer').click();
  assert.equal(await provider.locator('#offers .offer-card').count(),1);
+ // Unmatched search now offers a one-tap recovery that restores the provider's areas.
+ await provider.locator('#search').fill('unmatched xyz 123');
+ assert.equal(await provider.locator('#jobs .job').count(),0);
+ assert.equal(await provider.locator('#clear-filters').isVisible(),true);
+ await provider.locator('#clear-filters').click();
+ assert.ok(await provider.locator('#jobs .job').count()>0);
+ assert.equal(await provider.locator('#search').inputValue(),'');
+ assert.equal(await provider.locator('#clear-filters').isVisible(),false);
  await provider.locator('#reply-one').click();
  assert.equal(await provider.locator('#thread .msg').count(),3);
  scenarios++;
