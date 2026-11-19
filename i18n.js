@@ -85,8 +85,8 @@
  const picker=document.getElementById('language-picker');
  if(picker){
   const active=picker.querySelector('.current-language-label');
-  if(active)active.textContent=languages[current];
-  for(const link of picker.querySelectorAll('a[data-language]')){
+  if(active)active.textContent=['de','fr','ht'].includes(current)?languages[current]:'Más idiomas';
+  for(const link of document.querySelectorAll('a[data-language]')){
    if(link.dataset.language===current)link.setAttribute('aria-current','page');
    link.addEventListener('click',()=>{
     try{localStorage.setItem('oficiord-language',link.dataset.language);}catch{}
