@@ -79,7 +79,7 @@ function renderQuotes(){
   const price=node('div','RD$ '+q.amount.toLocaleString('en-US'),'quote-price');
   const facts=node('div',q.days+' '+t.days+' · '+t.service+': '+names[language][draft.category],'quote-facts');
   const areas=node('p',t.coverage+': '+q.areas.join(', '),'subtle');
-  const button=node('button',t.see,'primary');button.type='button';button.addEventListener('click',()=>{chosen=chooseExampleQuote(draft,q.id);if(!chosen)return;step=3;renderStep();});
+  const button=node('button',t.see,'primary');button.type='button';button.addEventListener('click',()=>{chosen=chooseExampleQuote(draft,q.id);if(!chosen)return;showDemoStep(3);});
   card.append(head,price,facts,areas,button);
   return card;
  }));
@@ -89,6 +89,12 @@ function renderChoice(){
  $('choice-provider').textContent=chosen.provider;
  $('choice-details').textContent='RD$ '+chosen.amount.toLocaleString('en-US')+' · '+chosen.days+' '+t.days;
  $('choice-photo').src='/assets/oficiord-'+chosen.photo+'.webp';
+}
+function showDemoStep(next){
+ step=next;renderStep();
+ const target=$('panel-'+next);
+ target.focus?.({preventScroll:true});
+ target.scrollIntoView?.({block:'start',behavior:'smooth'});
 }
 $('draft-next').addEventListener('click',()=>{
  const candidate=readDraft();
@@ -104,14 +110,14 @@ $('draft-next').addEventListener('click',()=>{
  }
  $('draft-title').setAttribute('aria-invalid','false');
  $('draft-description').setAttribute('aria-invalid','false');
- draft=candidate;chosen=null;step=2;renderStep();$('wizard').scrollIntoView({block:'start',behavior:'smooth'});
+ draft=candidate;chosen=null;showDemoStep(2);
 });
-$('back-edit').addEventListener('click',()=>{step=1;renderStep();});
-$('back-compare').addEventListener('click',()=>{step=2;renderStep();});
+$('back-edit').addEventListener('click',()=>{showDemoStep(1);});
+$('back-compare').addEventListener('click',()=>{showDemoStep(2);});
 $('reset-demo').addEventListener('click',()=>{
  chosen=null;draft=null;step=1;
  $('draft-title').value=seed.title;$('draft-description').value=seed.description;$('draft-category').value='ac';$('draft-region').value='Higüey';$('draft-urgency').value='flexible';
- renderStep();updateDraft();
+ showDemoStep(1);updateDraft();
 });
 $('sort').addEventListener('change',()=>{sort=$('sort').value;renderQuotes();});
 for(const id of ['draft-category','draft-region','draft-urgency','draft-title','draft-description']){

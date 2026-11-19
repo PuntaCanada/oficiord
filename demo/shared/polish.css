@@ -1,0 +1,67 @@
+/* Shared OficioRD premium visual language for fictional static demos.
+   Scoped classes only; no fonts, icon libraries, API or CDN dependencies. */
+:root{
+ --od-ink:#19384e;
+ --od-ink-soft:#597485;
+ --od-border:#d5e4ec;
+ --od-warm:#ffbf5e;
+ --od-sea:#175772;
+ --od-white:#fff;
+ --od-shadow:0 12px 30px rgba(18,56,79,.10);
+}
+#demo-cross-navigation{isolation:isolate}
+:is(.wizard,.section,.panel,.sidebar,.side,.card,.quote-card,.quote,.job,.offer,.offer-card,.stat,.preview,.compare-box){
+ transition:box-shadow .16s ease,border-color .16s ease;
+}
+:is(.wizard,.section,.panel,.sidebar,.side,.card,.quote-card,.quote,.job,.offer,.offer-card,.stat,.preview,.compare-box):focus-within{
+ border-color:#92bbcf;
+}
+:is(.quote-card,.quote,.job,.offer,.card):hover{
+ box-shadow:var(--od-shadow);
+}
+:is(.wizard,.section,.panel,.sidebar,.side,.card,.quote-card,.quote,.job,.offer,.offer-card,.stat,.preview,.compare-box){
+ overflow-wrap:anywhere;
+}
+:is(.primary,.secondary,.btn,.builder-link,.shared-journey-banner a,.launch-banner a):focus-visible{
+ outline:3px solid #c9861f;
+ outline-offset:3px;
+}
+:where(button,a,input,select,textarea):focus-visible{
+ scroll-margin:100px;
+}
+:where(button)[disabled]{
+ cursor:not-allowed;
+}
+:where(.muted,.subtext,.fineprint,.subtle,.lead){
+ line-height:1.55;
+}
+:where(.empty,.errors:not(:empty),.warning,.notice){
+ line-height:1.6;
+}
+:where(.empty){
+ border-left:3px solid #e5ae4d;
+}
+:where(.quote-grid,.quote-list,.quotes,.cards,.grid){
+ min-width:0;
+}
+@media(max-width:620px){
+ :where(.panel,.section,.side,.sidebar,.wizard,.quote-card,.offer-card,.job){
+  scroll-margin-top:72px;
+ }
+ :where(.actions,.offer-actions,.buttons,.quick-answers) button{
+  min-height:46px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important;scroll-behavior:auto!important}
+}
+@media(prefers-contrast:more){
+ :where(.empty,.warning,.notice,.quote-card,.quote,.job,.offer,.offer-card){
+  border:2px solid currentColor;
+ }
+}
+
+.od-noscript{max-width:1060px;margin:18px auto;padding:17px 20px;border:2px solid #d19a3c;border-radius:12px;background:#fff3d4;color:#694b17;line-height:1.6}
+.od-noscript p{margin:6px 0}.od-noscript a{color:#125978;font-weight:800}
+:where(.panel[tabindex="-1"]):focus{outline:none}
+:where(.panel[tabindex="-1"]):focus-visible{outline:3px solid #d39730;outline-offset:3px}
