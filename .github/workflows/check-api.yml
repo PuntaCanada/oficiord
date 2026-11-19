@@ -23,6 +23,13 @@ jobs:
             echo "Attempt $attempt: HTTP $code"
             if [ "$code" = "200" ]; then
               python3 -c 'import json; d=json.load(open("/tmp/api.json", encoding="utf-8")); assert d.get("ok") is True and d.get("database")=="connected", "D1 not ready"; print("PASS: D1 binding and query working")'
+              echo "Checking safe public configuration and closed submission gate"
+              curl --fail --show-error --silent --location --max-time 20 "https://oficiord.pages.dev/api/config" --output /tmp/config.json
+              python3 -c 'import json; d=json.load(open("/tmp/config.json",encoding="utf-8")); assert d.get("submissionsEnabled") is False, "Submissions unexpectedly enabled"; assert "TURNSTILE_SECRET" not in str(d) and "secret" not in str(d).lower(), "Secret field leaked"; print("Turnstile variables configured:",d.get("turnstileConfigured")); print("PASS: Submissions remain disabled")'
+              echo "Checking anonymous moderation request never exposes listings"
+              admin_code=$(curl --silent --show-error --output /tmp/admin.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/admin/submissions")
+              echo "Admin unauthenticated HTTP $admin_code"
+              test "$admin_code" = "401" -o "$admin_code" = "503"
               exit 0
             fi
             if [ -f /tmp/api.json ]; then head -c 400 /tmp/api.json; echo; fi
