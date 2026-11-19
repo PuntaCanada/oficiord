@@ -4,19 +4,31 @@ on:
   pull_request:
     paths:
       - 'demo/**'
+      - 'index.html'
+      - 'en/index.html'
+      - 'de/index.html'
+      - 'fr/index.html'
+      - 'ht/index.html'
       - 'account/**'
       - 'assets/**'
       - 'flags/**'
       - 'scripts/check-browser-mobile.mjs'
+      - 'scripts/check-home-journey.mjs'
       - '.github/workflows/check-browser-mobile.yml'
   push:
     branches: [main]
     paths:
       - 'demo/**'
+      - 'index.html'
+      - 'en/index.html'
+      - 'de/index.html'
+      - 'fr/index.html'
+      - 'ht/index.html'
       - 'account/**'
       - 'assets/**'
       - 'flags/**'
       - 'scripts/check-browser-mobile.mjs'
+      - 'scripts/check-home-journey.mjs'
       - '.github/workflows/check-browser-mobile.yml'
   workflow_dispatch:
 
@@ -53,3 +65,4 @@ jobs:
           SERVER_PID=$!
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
           node scripts/check-browser-mobile.mjs
+          node scripts/check-home-journey.mjs
