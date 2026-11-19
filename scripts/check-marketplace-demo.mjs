@@ -37,6 +37,30 @@ const context={
 vm.runInNewContext(js,context,{timeout:2000});
 assert.equal(get('jobs').children.length,6);
 assert.equal(get('pros').children.length,4);
+// A visitor can open a job, inspect regional/category matches, and simulate
+// a quote for exactly the selected fictional job and a matching professional.
+const firstJob=get('jobs').children[0];
+const openJobAction=firstJob.children.at(-1);
+assert.equal(openJobAction.textContent,'Ver detalles');
+openJobAction.onclick();
+assert.equal(get('job-dialog').open,true);
+assert.equal(get('job-detail-title').textContent,'Revisión de aire acondicionado');
+assert.equal(get('job-match-list').children.length,1);
+assert.equal(get('job-no-match').hidden,true);
+assert.match(get('job-demo-warning').textContent,/inventado/);
+get('job-match-list').children[0].children.at(-1).onclick();
+assert.equal(get('job-dialog').open,false);
+assert.equal(get('dialog').open,true);
+assert.equal(get('job').value,'j1');
+assert.equal(get('pro').value,'p1');
+assert.equal(get('offer-form').children.length>1,true);
+get('dialog').close();
+// A sample job with no matching service area must not fake professionals.
+get('jobs').children[4].children.at(-1).onclick();
+assert.equal(get('job-no-match').hidden,false);
+assert.equal(get('job-match-list').children.length,0);
+get('job-detail-back').onclick();
+assert.equal(get('job-dialog').open,false);
 // A profile card opens a richer read-only detail dialog, with only fictional content.
 const firstProfile=get('pros').children[0];
 const profileButton=firstProfile.children.at(-1);
@@ -70,6 +94,13 @@ langButtons[2].onclick();
 assert.equal(doc.documentElement.lang,'de');
 assert.equal(get('jobs-title').textContent,'Beispielaufträge');
 assert.equal(get('pros-title').textContent,'Beispiel-Handwerker');
+assert.equal(get('jobs').children[0].children.at(-1).textContent,'Auftrag ansehen');
+get('jobs').children[0].children.at(-1).onclick();
+assert.equal(get('job-step-two').textContent,'2 · Vergleichen');
+assert.match(get('job-demo-warning').textContent,/erfunden/);
+get('job-detail-close').onclick();
+assert.equal(get('job-dialog').open,false);
+
 const germanButton=get('pros').children[0].children.at(-1);
 assert.equal(germanButton.textContent,'Profil ansehen');
 germanButton.onclick();
@@ -86,8 +117,19 @@ assert.equal(get('dialog').open,false);
 get('show').onclick();
 assert.equal(get('dialog').open,true);
 get('price').value='3500';
+get('job').value='j1';
+get('job').onchange();
+assert.equal(get('pro').value,'p1');
 get('offer-form').onsubmit({preventDefault(){}});
 assert.ok(get('result').textContent.includes('nichts versendet'));
+// Tampering with the selection must not allow an unmatched quote.
+get('pro').value='p2';
+get('offer-form').onsubmit({preventDefault(){}});
+assert.match(get('result').textContent,/nicht ab/);
+// A job with no sample providers disables the simulated offer.
+get('job').value='j5';get('job').onchange();
+assert.equal(get('submit').disabled,true);
+assert.match(get('offer-compatibility').textContent,/kein passendes Profil/);
 get('close').onclick();
 assert.equal(get('dialog').open,false);
 for(const lang of ['es','en','de','fr','ht'])assert.ok(html.includes('data-lang="'+lang+'"'));
