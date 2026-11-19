@@ -1,8 +1,6 @@
 // Pure local authentication checks; no real users, no secrets, no network.
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {webcrypto} from 'node:crypto';
-globalThis.crypto=webcrypto;
 const source=await readFile(new URL('../functions/_lib/account-auth.js',import.meta.url),'utf8');
 const lib=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const token='a'.repeat(64);
