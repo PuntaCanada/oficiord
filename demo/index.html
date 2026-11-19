@@ -42,7 +42,7 @@ let language=Object.hasOwn(words,params.get('lang'))?params.get('lang'):'es';
 const norm=v=>String(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function filterItems(items,type){
  const city=$('city').value,cat=$('category').value,q=norm($('q').value.trim());
- return items.filter(x=>(!city||(type==='pro'?x.service.includes(city):x.city===city))&&(!cat||(type==='pro'?x.cats.includes(cat):x.cat===cat))&&(!q||norm([type==='pro'?x.name:x.title,x.city,type==='pro'?x.bio:x.description,(type==='pro'?x.cats:[x.cat]).map(c=>cats[c][language]).join(' ')].join(' ')).includes(q)));
+ return items.filter(x=>(!city||(type==='pro'?x.service.includes(city):x.city===city))&&(!cat||(type==='pro'?x.cats.includes(cat):x.cat===cat))&&(!q||norm([type==='pro'?x.name:jobText(x).title,x.city,type==='pro'?x.bio:jobText(x).description,(type==='pro'?x.cats:[x.cat]).map(c=>cats[c][language]).join(' ')].join(' ')).includes(q)));
 }
 const cardPhoto={ac:'hvac',plumbing:'plumbing',electric:'electric',clean:'cleaning',appliance:'appliances'};
 function textCard(title,meta,description,tags,photoKey,profileId=null,jobId=null){
