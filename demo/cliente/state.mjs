@@ -1,6 +1,6 @@
 // Entirely fictional, ephemeral demo state. No accounts, messages, requests or persistence.
 import {jobs,jobById,canonicalDraft,quoteFor} from '../shared/catalog.mjs';
-import {exampleQuotes} from '../crear/engine.mjs';
+import {exampleQuotes,validateDraft} from '../crear/engine.mjs';
 export const exampleJobs=Object.freeze(jobs.slice(0,2));
 export const STATUS=['review','quotes','selected'];
 export function makeInitialState(){
