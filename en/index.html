@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Discover service professionals around Higüey, Bávaro and Punta Cana. OficioRD is currently a pilot project."><link rel="canonical" href="https://oficiord.pages.dev/en/"><link rel="alternate" hreflang="es" href="https://oficiord.pages.dev/"><link rel="alternate" hreflang="en" href="https://oficiord.pages.dev/en/"><link rel="alternate" hreflang="de" href="https://oficiord.pages.dev/de/"><link rel="alternate" hreflang="fr" href="https://oficiord.pages.dev/fr/"><link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/"><link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/"><title>OficioRD | Find service professionals in the Dominican Republic</title><style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#162334;background:#f4f7fa}*{box-sizing:border-box}body{margin:0}header{background:#102b46;color:white;padding:16px 5%}nav{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:15px}a{color:inherit}.logo{font-size:25px;font-weight:850;text-decoration:none}.logo span{color:#ffbc42}.navlink{font-size:14px}.wrap{max-width:1100px;margin:auto;padding:0 22px}.hero{background:linear-gradient(135deg,#123454,#207c95);color:white;padding:72px 0}.hero h1{font-size:clamp(35px,5vw,57px);line-height:1.12;max-width:740px;margin:16px 0}.hero p{font-size:19px;max-width:600px;line-height:1.5}.tag{letter-spacing:1.5px;font-size:12px;font-weight:800;color:#ffce68}button,.btn{background:#ffb63f;color:#1b2937;border:0;padding:13px 18px;border-radius:10px;font-size:15px;font-weight:750;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.secondary{background:#fff;color:#193f58}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}.section{padding:52px 0}.section h2{font-size:29px;margin:0 0 10px}.muted{color:#5c6a7b}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:24px}.card{border:1px solid #e1e8ee;background:white;padding:22px;border-radius:15px;box-shadow:0 3px 14px #112b4410}.card .emoji{font-size:30px}.card h3{margin:14px 0 6px}.card p{color:#5b6a78;line-height:1.5;margin:0}.filters{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}select,input,textarea{padding:12px;border-radius:9px;border:1px solid #a9b7c4;background:white;font:inherit;width:100%}.filters select{flex:1;min-width:190px}.notice{background:#e9f1f5;border-left:4px solid #26788c;padding:17px;border-radius:7px;line-height:1.5}.job{padding:18px;border-radius:14px;background:white;border:1px solid #dfe5e9;margin:12px 0}.job small{color:#637181}.job p{white-space:pre-wrap}.reportbtn{background:#eaf0f4;color:#224961;font-size:13px;padding:9px 12px;margin-top:8px}.empty{padding:30px;text-align:center;color:#586674;background:#fff;border-radius:14px}footer{background:#102b46;color:#d9e3ed;padding:28px 0;font-size:13px}dialog{border:0;border-radius:16px;padding:0;max-width:min(520px,95vw);width:100%;box-shadow:0 18px 70px #0005}dialog::backdrop{background:#001a2dbb}.modal{padding:27px}.field{margin:14px 0}.field label{display:block;margin-bottom:6px;font-weight:650}.field textarea{height:115px}.small{font-size:12px;line-height:1.5;color:#596a75}.close{float:right;background:#e9edf1;padding:7px 12px}.status{margin-top:12px;font-weight:650}@media(max-width:580px){.hero{padding:50px 0}.section{padding:35px 0}}
+</style></head><body><header><nav><a class="logo" href="#">Oficio<span>RD</span></a><a class="navlink" href="#trabajos">Browse jobs</a></nav></header><main>
+<section class="hero"><div class="wrap"><div class="tag">MADE FOR THE DOMINICAN REPUBLIC 🇩🇴</div><h1>The work you need. People who know how to do it.</h1><p>Find technicians and service professionals near you. Starting in Higüey, Bávaro and Punta Cana.</p><div class="actions"><button data-kind="job">Post a job</button><button class="secondary" data-kind="professional">I'm a professional</button></div></div></section>
+<section class="section" id="categorias"><div class="wrap"><h2>What do you need done?</h2><p class="muted">Services for homes, businesses and rentals.</p><div class="grid" id="categories"></div></div></section>
+<section class="section" id="trabajos"><div class="wrap"><h2>Jobs in your area</h2><p class="muted">Solo aparecen solicitudes aprobadas por moderación.</p><div class="filters"><select id="city" aria-label="Zona"><option value="">Todas las zonas</option></select><select id="category" aria-label="Servicio"><option value="">Todos los servicios</option></select><button id="find">Buscar</button></div><div id="jobs" aria-live="polite">Cargando trabajos…</div><div class="notice" style="margin-top:25px"><strong>Proyecto piloto:</strong> el contacto directo, las cuentas y las propuestas todavía no están disponibles. No realices pagos a desconocidos ni compartas información sensible.</div></div></section>
+</main><footer><div class="wrap">© <span id="year"></span> OficioRD · Proyecto independiente · No afiliado a MyHammer. <span>Versión piloto.</span></div></footer>
+<dialog id="dialog"><div class="modal"><button class="close" id="close" aria-label="Cerrar">×</button><h2 id="form-title">Nueva solicitud</h2><p class="small">Durante la etapa piloto, toda solicitud requiere revisión antes de publicarse.</p><form id="form"><div class="field"><label for="title">Título</label><input id="title" required minlength="5" maxlength="80"></div><div class="field"><label for="f-city">Zona</label><select id="f-city" required></select></div><div class="field"><label for="f-category">Categoría</label><select id="f-category" required></select></div><div class="field"><label for="description">Descripción (sin teléfonos ni direcciones)</label><textarea id="description" minlength="10" maxlength="800" required></textarea></div><div class="field"><label for="email">Correo electrónico (privado)</label><input id="email" type="email" maxlength="254" required></div><div style="position:absolute;left:-10000px" aria-hidden="true"><label>Website<input id="website" tabindex="-1" autocomplete="off"></label></div><div class="field"><label><input id="consent" type="checkbox" required style="width:auto"> Acepto el tratamiento de mis datos para gestionar esta solicitud.</label></div><div id="captcha"></div><button id="send" type="submit" style="margin-top:14px">Enviar para revisión</button></form><div id="status" class="status" role="status"></div></div></dialog>
+<dialog id="report-dialog"><div class="modal"><button class="close" id="report-close" aria-label="Cerrar">×</button><h2>Reportar un anuncio</h2><p class="small">Las denuncias son revisadas por una persona. No compartas datos personales en la descripción.</p><form id="report-form"><div class="field"><label for="report-reason">Motivo</label><select id="report-reason" required><option value="spam">Spam o publicidad</option><option value="fraud">Posible estafa</option><option value="inappropriate">Contenido inapropiado</option><option value="privacy">Datos personales expuestos</option><option value="other">Otro problema</option></select></div><div class="field"><label for="report-details">Detalles (opcional)</label><textarea id="report-details" maxlength="1000" placeholder="Describe el problema sin incluir nombres, teléfonos ni direcciones"></textarea></div><label class="small"><input type="checkbox" id="report-consent" style="width:auto" required> Entiendo que la información será revisada para gestionar mi reporte.</label><div id="report-captcha"></div><button type="submit" id="report-submit" disabled>Enviar reporte</button><p role="status" id="report-status"></p></form></div></dialog>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script>
+const cities=['Higüey','Bávaro','Punta Cana','La Romana','Santo Domingo','Santiago','Otras zonas'];
+const categories=[['🔧','Plomería','Fugas y tuberías'],['⚡','Electricidad','Instalaciones y reparaciones'],['❄️','Aire acondicionado','Instalación y mantenimiento'],['🧺','Reparación de electrodomésticos','Neveras, lavadoras y más'],['🎨','Pintura','Paredes y fachadas'],['🧹','Limpieza','Hogares y alojamientos'],['🪚','Carpintería','Muebles y reparaciones'],['🏠','Otros','Servicios adicionales']];
+const el=id=>document.getElementById(id);let kind='job',sitekey=null,captchaWidget=null,reportId=null,reportWidget=null;
+el('year').textContent=new Date().getFullYear();
+for(const city of cities){for(const id of ['city','f-city'])el(id).add(new Option(city,city));}
+el('f-city').insertBefore(new Option('Selecciona una zona',''),el('f-city').firstChild);el('f-city').value='';
+for(const [,name] of categories){for(const id of ['category','f-category'])el(id).add(new Option(name,name));}
+el('f-category').insertBefore(new Option('Selecciona un servicio',''),el('f-category').firstChild);el('f-category').value='';
+el('categories').replaceChildren(...categories.map(([emoji,name,desc])=>{const card=document.createElement('article');card.className='card';const icon=document.createElement('div');icon.className='emoji';icon.textContent=emoji;const title=document.createElement('h3');title.textContent=name;const text=document.createElement('p');text.textContent=desc;card.append(icon,title,text);return card;}));
+async function jobs(){el('jobs').textContent='Cargando…';try{const params=new URLSearchParams({kind:'job',city:el('city').value,category:el('category').value});const r=await fetch('/api/submissions?'+params);if(!r.ok)throw Error();const data=await r.json();el('jobs').replaceChildren();if(!data.items?.length){el('jobs').textContent='Todavía no hay trabajos aprobados para estos filtros.';return;}for(const item of data.items){const article=document.createElement('article');article.className='job';const h=document.createElement('h3');h.textContent=item.title;const m=document.createElement('small');m.textContent=item.city+' · '+item.category;const p=document.createElement('p');p.textContent=item.description;article.append(h,m,p);const reportButton=document.createElement('button');reportButton.className='reportbtn';reportButton.type='button';reportButton.textContent='⚑ Reportar anuncio';reportButton.onclick=()=>openReport(item.id);article.append(reportButton);el('jobs').append(article);}}catch{el('jobs').innerHTML='<div class="empty">El tablón está pendiente de configurar. Todavía no se aceptan solicitudes.</div>';}}
+el('find').onclick=jobs;
+el('report-close').onclick=()=>el('report-dialog').close();
+async function openReport(id){
+ reportId=id;el('report-form').reset();el('report-submit').disabled=true;el('report-status').textContent='Comprobando disponibilidad…';
+ el('report-dialog').showModal();
+ let settings;
+ try{const r=await fetch('/api/config',{cache:'no-store'});if(!r.ok)throw Error();settings=await r.json();}catch{}
+ if(!el('report-dialog').open)return;
+ if(!settings?.reportsEnabled||!settings.reportSiteKey){
+  el('report-status').textContent='Las denuncias estarán disponibles cuando finalice la preparación de privacidad y seguridad.';
+  return;
+ }
+ for(let i=0;i<20&&!window.turnstile;i++)await new Promise(resolve=>setTimeout(resolve,150));
+ if(!el('report-dialog').open||!window.turnstile){el('report-status').textContent='No se pudo iniciar la verificación.';return;}
+ try{
+  if(reportWidget!==null)window.turnstile.remove(reportWidget);
+  el('report-captcha').textContent='';
+  reportWidget=window.turnstile.render('#report-captcha',{sitekey:settings.reportSiteKey});
+  el('report-submit').disabled=false;el('report-status').textContent='';
+ }catch{el('report-status').textContent='Verificación no disponible.';}
+}
+el('report-form').onsubmit=async event=>{
+ event.preventDefault();
+ const btn=el('report-submit');btn.disabled=true;
+ const token=reportWidget!==null&&window.turnstile?window.turnstile.getResponse(reportWidget):'';
+ if(!token){el('report-status').textContent='Completa la verificación de seguridad.';btn.disabled=false;return;}
+ try{
+  const response=await fetch('/api/reports',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({submissionId:reportId,reason:el('report-reason').value,details:el('report-details').value,consent:el('report-consent').checked,turnstileToken:token})});
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||'SERVER_ERROR');
+  el('report-status').textContent='Reporte recibido para revisión. Gracias.';
+  el('report-form').reset();
+ }catch(e){el('report-status').textContent='No se pudo enviar: '+e.message;if(reportWidget!==null&&window.turnstile)window.turnstile.reset(reportWidget);btn.disabled=false;}
+};
+async function openForm(k){
+ kind=k;
+ el('form-title').textContent=k==='job'?'Publicar un trabajo':'Crear perfil profesional';
+ el('status').textContent='Comprobando disponibilidad…';
+ el('form').reset();
+ el('send').disabled=true;
+ el('dialog').showModal();
+ let enabled=false;
+ try{
+  const r=await fetch('/api/config',{cache:'no-store'});
+  if(!r.ok)throw Error('CONFIG_UNAVAILABLE');
+  const d=await r.json();
+  enabled=d.submissionsEnabled===true;
+  sitekey=enabled?d.turnstileSiteKey:null;
+ }catch{}
+ if(!el('dialog').open)return;
+ if(!enabled||!sitekey){
+  el('status').textContent='Registro temporalmente cerrado durante la preparación legal y de seguridad. No envíes datos personales todavía.';
+  return;
+ }
+ el('status').textContent='Preparando verificación de seguridad…';
+ for(let i=0;i<20&&!window.turnstile;i++)await new Promise(resolve=>setTimeout(resolve,150));
+ if(!el('dialog').open)return;
+ if(!window.turnstile){el('status').textContent='No se pudo cargar la verificación. Inténtalo más tarde.';return;}
+ try{
+  if(captchaWidget!==null)window.turnstile.remove(captchaWidget);
+  el('captcha').textContent='';
+  captchaWidget=window.turnstile.render('#captcha',{sitekey});
+  el('send').disabled=false;
+  el('status').textContent='';
+ }catch{
+  el('status').textContent='No se pudo iniciar la verificación.';
+ }
+}
+document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>openForm(b.dataset.kind));el('close').onclick=()=>el('dialog').close();
+el('form').onsubmit=async e=>{e.preventDefault();el('status').textContent='';const token=captchaWidget!==null&&window.turnstile?window.turnstile.getResponse(captchaWidget):'';if(!token){el('status').textContent='Verificación de seguridad no disponible.';return;}const data={kind,title:el('title').value,city:el('f-city').value,category:el('f-category').value,description:el('description').value,contact_email:el('email').value,website:el('website').value,consent:el('consent').checked,turnstileToken:token};el('send').disabled=true;try{const r=await fetch('/api/submissions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});const d=await r.json();if(!r.ok)throw Error(d.error||'SERVER_ERROR');el('status').textContent='Solicitud recibida. Pendiente de revisión.';el('form').reset();}catch(e){el('status').textContent='No se pudo enviar ('+e.message+').';if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);}finally{el('send').disabled=false;}};
+jobs();
+</script><script src="/i18n.js" defer></script></body></html>
