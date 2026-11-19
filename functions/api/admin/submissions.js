@@ -37,7 +37,22 @@ export async function onRequestPost(context){
  let data;try{const raw=await request.text();if(raw.length>1000)return reply({error:"TOO_LARGE"},413);data=JSON.parse(raw);}catch{return reply({error:"INVALID_JSON"},400);}
  if(!data||typeof data.id!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.id)||!["approved","rejected"].includes(data.status))return reply({error:"INVALID_INPUT"},400);
  try{
-  const result=await env.DB.prepare("UPDATE submissions SET status=? WHERE id=? AND status='pending'").bind(data.status,data.id).run();
+  const result=await env.DB.prepare("UPDATE submissions SET status=? WHERE id=? AND (status='pending' OR (status='approved' AND ?='rejected'))").bind(data.status,data.id,data.status).run();
   return (result.meta?.changes||0)===1?reply({ok:true,status:data.status}):reply({error:"NOT_FOUND_OR_NOT_PENDING"},409);
+ }catch{return reply({error:"DATABASE_ERROR"},500);}
+}
+
+export async function onRequestDelete(context){
+ const rejected=await gate(context);if(rejected)return rejected;
+ const {env,request}=context;
+ const origin=request.headers.get("origin");
+ if(origin&&origin!==new URL(request.url).origin)return reply({error:"INVALID_ORIGIN"},403);
+ if(!request.headers.get("content-type")?.startsWith("application/json"))return reply({error:"INVALID_CONTENT_TYPE"},415);
+ if(Number(request.headers.get("content-length")||0)>1000)return reply({error:"TOO_LARGE"},413);
+ let data;try{const raw=await request.text();if(raw.length>1000)return reply({error:"TOO_LARGE"},413);data=JSON.parse(raw);}catch{return reply({error:"INVALID_JSON"},400);}
+ if(!data||typeof data.id!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.id)||data.confirm!=="DELETE")return reply({error:"INVALID_INPUT"},400);
+ try{
+  const result=await env.DB.prepare("DELETE FROM submissions WHERE id=?").bind(data.id).run();
+  return (result.meta?.changes||0)===1?reply({ok:true,deleted:true}):reply({error:"NOT_FOUND"},404);
  }catch{return reply({error:"DATABASE_ERROR"},500);}
 }
