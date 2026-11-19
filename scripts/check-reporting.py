@@ -13,6 +13,7 @@ db.executescript((ROOT / "migrations/0002_reports.sql").read_text(encoding="utf-
 db.executescript((ROOT / "migrations/0003_marketplace.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0004_accounts.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0005_magic_links.sql").read_text(encoding="utf-8"))
+db.executescript((ROOT / "migrations/0006_privacy_requests.sql").read_text(encoding="utf-8"))
 db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email) VALUES(?,?,?,?,?,?,?)",
   ("a"*36,"job","Prueba","Higüey","Otros","Descripción de prueba","fake@example.invalid"))
 db.execute("INSERT INTO reports(id,submission_id,reason,details) VALUES(?,?,?,?)",
@@ -30,7 +31,9 @@ for path in ["functions/api/reports.js","functions/api/admin/reports.js",
              "functions/api/account/login.js","functions/api/account/registration.js",
              "functions/api/account/dashboard.js","functions/api/account/magic-link.js",
              "functions/api/account/verify.js","functions/_lib/magic-link.js",
-             "functions/_lib/session-lifecycle.js","functions/api/account/logout.js"]:
+             "functions/_lib/session-lifecycle.js","functions/api/account/logout.js",
+             "functions/api/account/export.js","functions/api/account/sessions.js",
+             "functions/api/account/privacy.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -183,3 +186,23 @@ assert consume("e"*64) is None, "Expired token must fail"
 assert db.execute("SELECT used_at FROM account_login_tokens WHERE token_hash=?",("d"*64,)).fetchone()[0] is None
 subprocess.run(["node",str(ROOT/"scripts/check-session-lifecycle.mjs")],check=True)
 print("PASS: conditional atomic SQLite token consumption, expiry, revocation and JS session tests")
+
+# Privacy requests are confined to an account and cascade when an account is removed.
+db.execute("INSERT INTO accounts(id,email,role) VALUES(?,?,?)",
+ ("privacy-demo","privacy@example.invalid","customer"))
+db.execute("INSERT INTO account_privacy_requests(id,account_id,request_type) VALUES(?,?,?)",
+ ("privacy-demo-request","privacy-demo","delete"))
+assert db.execute("SELECT status FROM account_privacy_requests WHERE id='privacy-demo-request'").fetchone()[0]=="pending"
+try:
+ db.execute("INSERT INTO account_privacy_requests(id,account_id,request_type) VALUES(?,?,?)",
+ ("invalid-type","privacy-demo","admin"))
+ raise AssertionError("Invalid privacy request type")
+except sqlite3.IntegrityError:
+ pass
+db.execute("DELETE FROM accounts WHERE id='privacy-demo'")
+assert db.execute("SELECT count(*) FROM account_privacy_requests WHERE account_id='privacy-demo'").fetchone()[0]==0
+assert "ACCOUNTS_ENABLED" in (ROOT/"functions/api/account/export.js").read_text(encoding="utf-8")
+assert "ACCOUNTS_ENABLED" in (ROOT/"functions/api/account/sessions.js").read_text(encoding="utf-8")
+assert "PRIVACY_REQUESTS_NOT_ENABLED" in (ROOT/"functions/api/account/privacy.js").read_text(encoding="utf-8")
+subprocess.run(["node",str(ROOT/"scripts/check-account-privacy.mjs")],check=True)
+print("PASS: privacy schema, owner scoping, session redaction and closed intake")
