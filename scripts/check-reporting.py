@@ -68,6 +68,8 @@ subprocess.run(["node",str(ROOT/"scripts/check-customer-dashboard.mjs")],check=T
 subprocess.run(["node",str(ROOT/"scripts/check-provider-dashboard.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-shared-journey.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-prelaunch-safety.mjs")],check=True)
+subprocess.run(["node",str(ROOT/"scripts/check-marketplace-ownership-gates.mjs")],check=True)
+subprocess.run(["node",str(ROOT/"scripts/check-launch-readiness.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-photo-assets.mjs")],check=True)
 print("PASS: HTML inline JavaScript syntax")
 
