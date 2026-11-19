@@ -120,7 +120,7 @@ try{
  assert.equal(await customer.locator('#comparison-list .compare-column').count(),0);
  scenarios++;
  await customer.close();
- for(const [lang,expected] of [['es','Dos perspectivas'],['en','One fictional job'],['de','Ein fiktiver Auftrag'],['fr','Un travail fictif'],['ht','Yon travay envante']]){
+ for(const [lang,expected] of [['es','Del cliente al profesional'],['en','One fictional job'],['de','Ein fiktiver Auftrag'],['fr','Un travail fictif'],['ht','Yon travay envante']]){
   const page=await openPage(context,'/demo/recorrido/?lang='+lang);
   assert.ok((await page.locator('h1').innerText()).includes(expected),'Language '+lang+' title');
   await page.locator('#offers .offer').first().waitFor();
