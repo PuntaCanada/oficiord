@@ -17,7 +17,11 @@ try{
  ];
  for(const filename of migrations){
   const sql=await readFile(new URL('../migrations/'+filename,import.meta.url),'utf8');
-  await db.exec(sql);
+  // D1 exec() processes input by line. Migrations contain multiline CREATEs,
+  // so split the simple semicolon-terminated schema into prepared statements.
+  const statements=sql.replace(/^--.*$/gm,'').split(';').map(s=>s.trim()).filter(Boolean);
+  assert.ok(statements.length>0);
+  await db.batch(statements.map(statement=>db.prepare(statement)));
  }
  const base=await readFile(new URL('../functions/_lib/magic-link.js',import.meta.url),'utf8');
  const baseURL='data:text/javascript;base64,'+Buffer.from(base).toString('base64');
