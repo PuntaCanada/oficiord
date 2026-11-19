@@ -67,6 +67,7 @@ subprocess.run(["node",str(ROOT/"scripts/check-quote-builder.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-customer-dashboard.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-provider-dashboard.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-shared-journey.mjs")],check=True)
+subprocess.run(["node",str(ROOT/"scripts/check-prelaunch-safety.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-photo-assets.mjs")],check=True)
 print("PASS: HTML inline JavaScript syntax")
 
