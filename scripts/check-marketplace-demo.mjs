@@ -37,6 +37,21 @@ const context={
 vm.runInNewContext(js,context,{timeout:2000});
 assert.equal(get('jobs').children.length,6);
 assert.equal(get('pros').children.length,4);
+// A profile card opens a richer read-only detail dialog, with only fictional content.
+const firstProfile=get('pros').children[0];
+const profileButton=firstProfile.children.at(-1);
+assert.equal(profileButton.textContent,'Ver perfil');
+profileButton.onclick();
+assert.equal(get('profile-dialog').open,true);
+assert.equal(get('profile-title').textContent,'Profesional de ejemplo A');
+assert.equal(get('profile-services').children.length,2);
+assert.equal(get('profile-areas').children.length,2);
+assert.equal(get('profile-samples').children.length,2);
+assert.match(get('profile-disclaimer').textContent,/No representan profesionales registrados/);
+assert.match(get('profile-samples').children[0].children[1].textContent,/no es un trabajo realizado/);
+get('profile-close').onclick();
+assert.equal(get('profile-dialog').open,false);
+
 get('city').value='Higüey';get('city').onchange();
 assert.equal(get('jobs').children.length,2);
 assert.equal(get('pros').children.length,2);
@@ -55,6 +70,17 @@ langButtons[2].onclick();
 assert.equal(doc.documentElement.lang,'de');
 assert.equal(get('jobs-title').textContent,'Beispielaufträge');
 assert.equal(get('pros-title').textContent,'Beispiel-Handwerker');
+const germanButton=get('pros').children[0].children.at(-1);
+assert.equal(germanButton.textContent,'Profil ansehen');
+germanButton.onclick();
+assert.equal(get('profile-services-heading').textContent,'Dienstleistungen');
+assert.match(get('profile-disclaimer').textContent,/fiktiv/);
+get('profile-offer').onclick();
+assert.equal(get('profile-dialog').open,false);
+assert.equal(get('dialog').open,true);
+assert.equal(get('pro').value,'p1');
+get('dialog').close();
+
 assert.equal(get('jobs').children.length,6);
 assert.equal(get('dialog').open,undefined);
 get('show').onclick();
