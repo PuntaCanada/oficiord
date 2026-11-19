@@ -70,7 +70,7 @@
 :where(.empty,.warning,.notice,.selected-note,.demo-success,.job-no-match,[role="alert"]){overflow-wrap:anywhere}
 :where(.empty){background-color:#f4f9fc;border:1px solid #d2e4ee;border-left:4px solid #db9d36;border-radius:12px;padding:18px;color:#31566d}
 :where(.warning,.notice){border-radius:12px}
-:where(button,input,select,textarea){font-size:max(16px,1em)}
+:where(input,select,textarea){font-size:max(16px,1em)}
 :where(button,a,summary,select,input,textarea):focus-visible{outline:3px solid #ce8d28;outline-offset:3px}
 :where([role="status"]){overflow-wrap:anywhere}
 :where([hidden]){display:none!important}
