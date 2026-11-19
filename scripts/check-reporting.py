@@ -281,3 +281,6 @@ assert db.execute("SELECT count(*) FROM account_login_redemptions WHERE token_ha
 assert db.execute("SELECT used_at FROM account_login_tokens WHERE token_hash=?",("i"*64,)).fetchone()[0] is None
 subprocess.run(["node",str(ROOT/"scripts/check-atomic-login.mjs")],check=True)
 print("PASS: real SQLite integration for atomic login, replay, expiry, blocked accounts and rollback")
+
+# Independent disk-backed, simultaneous connection test of the authentication transaction.
+subprocess.run(["python3",str(ROOT/"scripts/check-concurrent-login.py")],check=True)
