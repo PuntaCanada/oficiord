@@ -1,0 +1,25 @@
+// No database or network. Security properties for not-yet-enabled magic links.
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const source=await readFile(new URL('../functions/_lib/magic-link.js',import.meta.url),'utf8');
+const lib=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const a=lib.createOpaqueToken(),b=lib.createOpaqueToken();
+assert.match(a,/^[0-9a-f]{64}$/);
+assert.match(b,/^[0-9a-f]{64}$/);
+assert.notEqual(a,b);
+assert.equal(lib.validOpaqueToken(a),true);
+assert.equal(lib.validOpaqueToken('a'.repeat(32)),false);
+assert.equal(lib.validOpaqueToken('z'.repeat(64)),false);
+const hash=await lib.tokenDigest(a);
+assert.match(hash,/^[0-9a-f]{64}$/);
+assert.notEqual(hash,a);
+assert.equal(await lib.tokenDigest(a),hash);
+await assert.rejects(lib.tokenDigest('unsafe'));
+assert.equal(lib.TOKEN_TTL_SECONDS<=600,true);
+assert.equal(lib.parseAccountEmail(' Name@example.COM '),'name@example.com');
+assert.equal(lib.parseAccountEmail('invalid email'),null);
+assert.equal(lib.buildMagicLink('https://oficiord.pages.dev',a),'https://oficiord.pages.dev/account/verify/#token='+a);
+assert.throws(()=>lib.buildMagicLink('https://attacker.example',a));
+const cookie=lib.sessionCookie(a);
+for(const word of ['__Host-oficiord_session=','Secure','HttpOnly','SameSite=Lax','Path=/','Max-Age='])assert.ok(cookie.includes(word));
+console.log('PASS: cryptographically random opaque tokens, hashes, link origin, safe cookie flags');
