@@ -25,7 +25,7 @@ if(root){
  scroll.setAttribute('role','group');
  scroll.setAttribute('tabindex','0');
  nav.append(inner);inner.append(heading,scroll);root.replaceChildren(nav);
- const normalizedPath=location.pathname.replace(/\\/+/g,'/').replace(/\\/?$/,'/');
+ const normalizedPath=location.pathname.endsWith('/')?location.pathname:location.pathname+'/';
  const current=pages.find(p=>p.path===normalizedPath)?.key||'explore';
  function language(){
   const code=new URLSearchParams(location.search).get('lang');
