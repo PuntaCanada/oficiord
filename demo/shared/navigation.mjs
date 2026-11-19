@@ -43,7 +43,7 @@ if(root){
  }
  render();
  const activeLink=scroll.querySelector('[aria-current="page"]');
- if(activeLink)activeLink.scrollIntoView({block:'nearest',inline:'nearest'});
+ if(activeLink)scroll.scrollLeft=Math.max(0,activeLink.offsetLeft-scroll.offsetLeft-12);
  // Existing demo language selectors mutate <html lang>; the shared nav follows
  // without monkey-patching history or adding a new locale store.
  const observer=new MutationObserver(()=>render());
