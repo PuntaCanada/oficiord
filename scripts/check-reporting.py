@@ -65,6 +65,7 @@ for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/in
 subprocess.run(["node",str(ROOT/"scripts/check-marketplace-demo.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-quote-builder.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-customer-dashboard.mjs")],check=True)
+subprocess.run(["node",str(ROOT/"scripts/check-provider-dashboard.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-photo-assets.mjs")],check=True)
 print("PASS: HTML inline JavaScript syntax")
 
