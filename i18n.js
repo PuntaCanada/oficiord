@@ -72,8 +72,14 @@
  const sourceMap={};
  for(const [es,translations] of Object.entries(strings))for(const [lang,val] of Object.entries(translations)){sourceMap[lang]??=new Map();sourceMap[lang].set(es,val);}
  const qs=new URLSearchParams(location.search);
- const chosen=qs.get('lang');
- let current=Object.hasOwn(languages,chosen)?chosen:'es';
+ const pathLanguage=location.pathname.match(/^\/(en|de|fr|ht)\/$/)?.[1];
+ const legacyLanguage=qs.get('lang');
+ // Keep old shared links working while giving every language its own canonical URL.
+ if(!pathLanguage&&Object.hasOwn(languages,legacyLanguage)&&legacyLanguage!=='es'){
+  location.replace('/'+legacyLanguage+'/');
+  return;
+ }
+ let current=pathLanguage||'es';
  const picker=document.createElement('select');picker.id='language-picker';picker.setAttribute('aria-label','Language / Idioma');
  picker.style.cssText='font:inherit;font-size:14px;color:#102b46;background:#fff;border:1px solid #aac0cc;border-radius:8px;padding:7px 8px;width:auto;min-width:135px';
  for(const [key,label] of Object.entries(languages))picker.add(new Option(label,key));
@@ -122,10 +128,8 @@
   pending=true;queueMicrotask(()=>{pending=false;translating=true;observer.disconnect();try{localize();}finally{observer.observe(document.body,{subtree:true,childList:true,characterData:true});translating=false;}});
  });
  picker.addEventListener('change',()=>{
-  current=picker.value;
-  const next=new URL(location.href);if(current==='es')next.searchParams.delete('lang');else next.searchParams.set('lang',current);
-  history.replaceState(null,'',next);
-  translating=true;observer.disconnect();try{localize();}finally{observer.observe(document.body,{subtree:true,childList:true,characterData:true});translating=false;}
+  const language=picker.value;
+  location.assign(language==='es'?'/':'/'+language+'/');
  });
  translating=true;localize();translating=false;
  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
