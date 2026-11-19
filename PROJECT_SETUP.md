@@ -1,0 +1,30 @@
+# OficioRD — MVP piloto
+Marketplace piloto de profesionales y trabajos en República Dominicana, empezando por Higüey, Bávaro y Punta Cana. Sitio independiente, no afiliado a MyHammer.
+
+## Estado
+- Sitio español, adaptable al móvil, categorías y filtros.
+- GET `/api/submissions`: solo publicaciones aprobadas, sin direcciones de contacto.
+- POST `/api/submissions`: solicitudes pendientes de moderación; requiere Cloudflare D1 y Turnstile.
+- Página de formulario bloqueada en ausencia de configuración de seguridad.
+- No hay cuentas, pagos, mensajería, notificaciones ni sistema de propuestas reales todavía.
+
+## Configurar Cloudflare Pages
+1. Conectar repositorio `PuntaCanada/oficiord` con Cloudflare Pages. Framework: None; build command: vacío; output: `.`.
+2. Crear base Cloudflare D1 `oficiord-db`. Ejecutar `migrations/0001_init.sql` en D1 Console.
+3. Asociar binding `DB` a esa base en Pages (Production y Preview si procede).
+4. Crear widget Cloudflare Turnstile para dominio Pages. Configurar variable `TURNSTILE_SITE_KEY` (pública) y secret `TURNSTILE_SECRET` (¡nunca poner en GitHub!). Desplegar de nuevo.
+5. Probar con información ficticia. Confirmar que POST devuelve `pending` y GET no la publica hasta aprobarla.
+
+## Moderación provisional
+En la consola D1:
+```sql
+SELECT id,kind,title,city,category,description,created_at FROM submissions WHERE status='pending' ORDER BY created_at DESC;
+-- Revisar textos para evitar publicar datos personales o contenido inapropiado:
+UPDATE submissions SET status='approved' WHERE id='UUID_A_REVISAR';
+```
+
+## Seguridad y limitaciones
+No publicar comercialmente ni recolectar datos reales hasta crear aviso legal, política de privacidad, contacto de responsable, periodo de retención y borrado, un proceso de denuncia y un panel seguro de moderación. El consentimiento actual es un marcador provisional, no una política de privacidad terminada. Las reglas de limitación por IP son una protección básica (no un sistema antifraude completo). Las cuotas Free pueden limitar disponibilidad.
+
+## Coste
+Sin servicios de pago configurados. Planeado para GitHub + Cloudflare Pages/D1/Turnstile en los límites gratuitos. Una base de datos real y widget Turnstile aún deben conectarse.
