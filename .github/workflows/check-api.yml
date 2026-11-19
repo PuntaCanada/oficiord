@@ -44,6 +44,16 @@ jobs:
               reports_admin_code=$(curl --silent --show-error --output /tmp/report-admin.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/admin/reports")
               echo "Private reports HTTP $reports_admin_code"
               test "$reports_admin_code" = "401"
+              echo "Checking account registration/login remain disabled"
+              for endpoint in registration login me; do
+                response_code=$(curl --silent --show-error --request POST --header 'content-type: application/json' --data '{}' --output /tmp/account.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/account/$endpoint")
+                echo "$endpoint POST: $response_code"
+                test "$response_code" = "503"
+              done
+              account_get=$(curl --silent --show-error --output /tmp/account-get.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/account/me")
+              echo "Account details GET: $account_get"
+              test "$account_get" = "503"
+              python3 -c 'import json; d=json.load(open("/tmp/account-get.json",encoding="utf-8")); assert d.get("error")=="ACCOUNTS_NOT_ENABLED", "Account unexpectedly enabled"; print("PASS: Accounts remain disabled")'
               echo "Checking public moderation page is deployed"
               html_code=$(curl --silent --show-error --location --output /tmp/admin.html --write-out '%{http_code}' "https://oficiord.pages.dev/admin/")
               echo "Moderation HTML HTTP $html_code"
