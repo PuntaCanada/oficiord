@@ -20,13 +20,7 @@ jobs:
             code=$(curl --max-time 20 --silent --show-error --location --output /tmp/api.json --write-out '%{http_code}' "$URL") || code=000
             echo "Attempt $attempt: HTTP $code"
             if [ "$code" = "200" ]; then
-              python3 - <<'PY'
-import json
-with open('/tmp/api.json', encoding='utf-8') as f: data=json.load(f)
-assert isinstance(data.get('items'),list), "Expected an items array"
-assert all(isinstance(x,dict) and 'contact_email' not in x for x in data['items']), "Private contact_email exposed!"
-print("PASS: API available, database query works, contact emails are not exposed.")
-PY
+              python3 -c 'import json; d=json.load(open("/tmp/api.json", encoding="utf-8")); assert isinstance(d.get("items"), list), "Expected items array"; assert all("contact_email" not in i for i in d["items"]), "Private email exposed"; print("PASS: API, D1 query and private fields")'
               exit 0
             fi
             if [ -f /tmp/api.json ]; then head -c 400 /tmp/api.json; echo; fi
