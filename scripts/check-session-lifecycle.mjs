@@ -6,7 +6,7 @@ const lifecycle=await readFile(new URL('../functions/_lib/session-lifecycle.js',
 const baseURL='data:text/javascript;base64,'+Buffer.from(base).toString('base64');
 const lifecycleURL='data:text/javascript;base64,'+Buffer.from(lifecycle.replace("'./magic-link.js'","'"+baseURL+"'")).toString('base64');
 const {createOpaqueToken,tokenDigest}=await import(baseURL);
-const {consumeVerifiedLink,createAccountSession,revokeSession,expiredSessionCookie}=await import(lifecycleURL);
+const {consumeVerifiedLink,createAccountSession,revokeSession,revokeAllOwnSessions,expiredSessionCookie}=await import(lifecycleURL);
 const token=createOpaqueToken(),hash=await tokenDigest(token);
 let used=false,revoked=false;
 const logs=[];
@@ -20,6 +20,7 @@ const db={prepare(sql){return {bind(...params){logs.push({sql,params});return {
  },
  async run(){
   if(sql.includes('INSERT INTO account_sessions'))return {meta:{changes:params[2]==='customer-test'?1:0}};
+  if(sql.includes('UPDATE account_sessions')&&sql.includes('account_id=?'))return {meta:{changes:params[1]==='customer-test'?2:0}};
   if(sql.includes('UPDATE account_sessions')){
    if(revoked)return {meta:{changes:0}};
    revoked=true;return {meta:{changes:1}};
@@ -42,5 +43,9 @@ const raw=session.cookie.match(/session=([0-9a-f]{64})/)[1];
 assert.notEqual(logs.find(x=>x.sql.includes('INSERT INTO account_sessions')).params[0],raw);
 assert.equal(await revokeSession(db,raw,1700000100),true);
 assert.equal(await revokeSession(db,raw,1700000100),false);
+assert.equal(await revokeAllOwnSessions(db,{id:'customer-test',status:'active',role:'customer'},1700000200),2);
+await assert.rejects(revokeAllOwnSessions(db,{id:'customer-test',status:'suspended',role:'customer'},1700000200),/AUTH_REQUIRED/);
+await assert.rejects(revokeAllOwnSessions(db,{id:'customer-test',status:'active',role:'admin'},1700000200),/AUTH_REQUIRED/);
+assert.equal(logs.filter(x=>x.sql.includes('account_id=?')&&x.sql.includes('UPDATE account_sessions')).at(-1).params[1],'customer-test');
 assert.match(expiredSessionCookie(),/Max-Age=0/);
 console.log('PASS: single-use tokens, verified account filter, hashed session, expiry, revocation, logout cookie');
