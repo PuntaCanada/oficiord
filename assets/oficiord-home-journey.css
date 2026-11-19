@@ -1,0 +1,19 @@
+/* OficioRD pilot homepage: consistent visual journey into fully fictional demos. */
+.od-journey{background:linear-gradient(160deg,#edf6fa,#ffffff);border-top:1px solid #d9e9f0;border-bottom:1px solid #d8e6ee;padding:48px 0 55px}
+.od-journey .wrap{max-width:1100px}
+.od-journey-eyebrow{color:#166583;letter-spacing:.1em;font-weight:850;font-size:11px;text-transform:uppercase}
+.od-journey h2{font-size:clamp(27px,3.5vw,39px);line-height:1.18;color:#143a54;margin:9px 0 10px}
+.od-journey-description{font-size:16px;line-height:1.65;color:#476778;max-width:780px;margin:0 0 24px}
+.od-journey-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.od-journey-card{display:flex;flex-direction:column;min-width:0;gap:12px;padding:23px 22px;background:white;border:1px solid #d6e5ec;box-shadow:0 8px 24px #133a4d10;border-radius:17px;text-decoration:none;color:#163b54;transition:transform .18s,box-shadow .18s,border-color .18s}
+.od-journey-card:hover{transform:translateY(-2px);box-shadow:0 18px 35px #163b5420;border-color:#83b3c7}
+.od-journey-card:focus-visible{outline:3px solid #ce8a26;outline-offset:3px}
+.od-journey-icon{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;font-size:25px;background:#e5f3f9;color:#135874}
+.od-journey-card h3{font-size:19px;line-height:1.35;margin:0}
+.od-journey-card p{font-size:13px;line-height:1.6;margin:0 0 4px;color:#567184;flex:1}
+.od-journey-cta{font-size:13px;font-weight:850;color:#14627f}
+.od-journey-notice{font-size:12px;color:#536f80;line-height:1.6;margin:20px 0 0;border-left:4px solid #e0a84c;padding:9px 12px;background:#fff7e8;border-radius:4px}
+@media(max-width:850px){.od-journey-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.od-journey{padding:32px 0 38px}.od-journey-grid{grid-template-columns:1fr}.od-journey-card{padding:19px;gap:9px}.od-journey-card h3{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.od-journey-card{transition:none}.od-journey-card:hover{transform:none}}
+@media(prefers-contrast:more){.od-journey-card{border:2px solid currentColor}.od-journey-notice{border:3px solid #735018}}
