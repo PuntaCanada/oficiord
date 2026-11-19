@@ -82,7 +82,7 @@ assert.equal(get('pro').value,'p1');
 get('dialog').close();
 
 assert.equal(get('jobs').children.length,6);
-assert.equal(get('dialog').open,undefined);
+assert.equal(get('dialog').open,false);
 get('show').onclick();
 assert.equal(get('dialog').open,true);
 get('price').value='3500';
