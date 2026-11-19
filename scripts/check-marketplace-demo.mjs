@@ -53,7 +53,7 @@ assert.equal(get('job-dialog').open,false);
 assert.equal(get('dialog').open,true);
 assert.equal(get('job').value,'j1');
 assert.equal(get('pro').value,'p1');
-assert.equal(get('offer-form').children.length>1,true);
+assert.equal(get('submit').disabled,false);
 get('dialog').close();
 // A sample job with no matching service area must not fake professionals.
 get('jobs').children[4].children.at(-1).onclick();
