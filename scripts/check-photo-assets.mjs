@@ -15,13 +15,13 @@ for(const path of ['index.html','en/index.html','de/index.html','fr/index.html',
  const html=await readFile(new URL(path,root),'utf8');
  assert.ok(html.includes('src="/assets/oficiord-hero.webp"'),path+' has no hero photo');
  assert.ok(html.includes('category-photo'),path+' has no category photos');
- assert.ok(html.includes('oficiord-hvac.webp'),path+' has no AC category image');
- assert.ok(html.includes('oficiord-plumbing.webp'),path+' has no plumbing category image');
- assert.ok(html.includes('oficiord-cleaning.webp'),path+' has no cleaner image');
+ assert.ok(html.includes("'Aire acondicionado':'hvac'"),path+' has no AC category mapping');
+ assert.ok(html.includes("'Plomería':'plumbing'"),path+' has no plumbing category mapping');
+ assert.ok(html.includes("'Limpieza':'cleaning'"),path+' has no cleaner image mapping');
  assert.ok(html.includes('<figcaption>'),path+' must identify illustration');
 }
 const demo=await readFile(new URL('demo/index.html',root),'utf8');
-for(const name of assets.slice(1))assert.ok(demo.includes("oficiord-"+name),name+' not used by marketplace demo');
+for(const name of assets.slice(1))assert.ok(demo.includes("'"+name+"'"),name+' missing from marketplace image map');
 assert.ok(demo.includes('imageNote'),'Demo photos must be disclosed');
 assert.ok(!/fetch\s*\(/.test(demo),'Example photos must not trigger external API calls');
 const account=await readFile(new URL('account/index.html',root),'utf8');
