@@ -29,7 +29,7 @@ for(const width of [390,768,1365]){
     if(await page.locator('.od-demo-nav-link[aria-current="page"]').count()!==1)throw new Error('Current navigation location missing');
     const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
     const severe=axe.violations.filter(v=>['critical','serious'].includes(v.impact));
-    if(severe.length)throw new Error('Accessibility: '+severe.map(v=>v.id+' ('+v.nodes.length+')').join(', '));
+    if(severe.length)throw new Error('Accessibility: '+severe.map(v=>v.id+' ('+v.nodes.length+') '+v.nodes.map(n=>n.target.join(' ')+': '+(n.failureSummary||'').replace(/\\s+/g,' ').slice(0,200)).join(' | ')).join(', '));
    }
    if(path==='/account/'){
     if(await page.locator('#email').isEnabled()||await page.locator('#login').isEnabled())throw new Error('Real login unexpectedly enabled');
