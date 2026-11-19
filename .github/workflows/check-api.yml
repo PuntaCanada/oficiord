@@ -35,6 +35,15 @@ jobs:
               echo "Public submission HTTP $post_code"
               test "$post_code" = "503"
               python3 -c 'import json; d=json.load(open("/tmp/post.json",encoding="utf-8")); assert d.get("error")=="SUBMISSIONS_NOT_ENABLED", "Expected closed gate"; print("PASS: no public submissions accepted")'
+              echo "Checking report intake remains closed"
+              report_code=$(curl --silent --show-error --request POST --header 'content-type: application/json' --data '{}' --output /tmp/report.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/reports")
+              echo "Public report HTTP $report_code"
+              test "$report_code" = "503"
+              python3 -c 'import json; d=json.load(open("/tmp/report.json",encoding="utf-8")); assert d.get("error")=="REPORTS_NOT_ENABLED", "Expected closed reporting gate"; print("PASS: public report intake remains closed")'
+              echo "Checking anonymous report moderation is inaccessible"
+              reports_admin_code=$(curl --silent --show-error --output /tmp/report-admin.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/admin/reports")
+              echo "Private reports HTTP $reports_admin_code"
+              test "$reports_admin_code" = "401"
               echo "Checking public moderation page is deployed"
               html_code=$(curl --silent --show-error --location --output /tmp/admin.html --write-out '%{http_code}' "https://oficiord.pages.dev/admin/")
               echo "Moderation HTML HTTP $html_code"
