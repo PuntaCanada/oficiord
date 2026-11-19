@@ -1,0 +1,39 @@
+name: OficioRD static SEO and indexability audit
+on:
+  push:
+    branches: [main, 'feature/**']
+    paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'de/index.html'
+      - 'fr/index.html'
+      - 'ht/index.html'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '_headers'
+      - 'demo/index.html'
+      - 'account/index.html'
+      - 'tests/seo-static-audit.py'
+      - '.github/workflows/seo-static-audit.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'de/index.html'
+      - 'fr/index.html'
+      - 'ht/index.html'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '_headers'
+      - 'tests/seo-static-audit.py'
+      - '.github/workflows/seo-static-audit.yml'
+permissions:
+  contents: read
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify search indexability, sitemap and noindex safety offline
+        run: python3 tests/seo-static-audit.py
