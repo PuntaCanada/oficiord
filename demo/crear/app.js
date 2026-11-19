@@ -58,6 +58,8 @@ function renderStep(){
 }
 function updateDraft(){
  $('form-error').textContent='';
+ $('draft-title').setAttribute('aria-invalid','false');
+ $('draft-description').setAttribute('aria-invalid','false');
  $('preview-title').textContent=$('draft-title').value.trim()||langText[language].title;
  $('preview-meta').textContent=($('draft-region').value||'Higüey')+' · '+names[language][$('draft-category').value||'ac'];
  $('preview-photo').src='/assets/oficiord-'+({ac:'hvac',plumbing:'plumbing',electric:'electric',clean:'cleaning',paint:'cleaning',appliance:'appliances'}[$('draft-category').value]||'hvac')+'.webp';
@@ -90,7 +92,18 @@ function renderChoice(){
 }
 $('draft-next').addEventListener('click',()=>{
  const candidate=readDraft();
- if(!validateDraft(candidate)){$('form-error').textContent=langText[language].error;return;}
+ if(!validateDraft(candidate)){
+  $('form-error').textContent=langText[language].error;
+  const invalidTitle=typeof candidate.title!=='string'||candidate.title.trim().length<6||candidate.title.trim().length>70;
+  const invalidDescription=typeof candidate.description!=='string'||candidate.description.trim().length<15||candidate.description.trim().length>300;
+  $('draft-title').setAttribute('aria-invalid',String(invalidTitle));
+  $('draft-description').setAttribute('aria-invalid',String(invalidDescription));
+  const target=invalidTitle?$('draft-title'):invalidDescription?$('draft-description'):$('form-error');
+  target.focus?.();
+  return;
+ }
+ $('draft-title').setAttribute('aria-invalid','false');
+ $('draft-description').setAttribute('aria-invalid','false');
  draft=candidate;chosen=null;step=2;renderStep();$('wizard').scrollIntoView({block:'start',behavior:'smooth'});
 });
 $('back-edit').addEventListener('click',()=>{step=1;renderStep();});
