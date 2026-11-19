@@ -95,9 +95,12 @@ assert.equal(doc.documentElement.lang,'de');
 assert.equal(get('jobs-title').textContent,'Beispielaufträge');
 assert.equal(get('pros-title').textContent,'Beispiel-Handwerker');
 assert.equal(get('jobs').children[0].children.at(-1).textContent,'Auftrag ansehen');
+assert.equal(get('jobs').children[0].children.find(x=>x.tag==='h3').textContent,'Klimaanlage überprüfen');
 get('jobs').children[0].children.at(-1).onclick();
 assert.equal(get('job-step-two').textContent,'2 · Vergleichen');
 assert.match(get('job-demo-warning').textContent,/erfunden/);
+assert.equal(get('job-detail-title').textContent,'Klimaanlage überprüfen');
+assert.match(get('job-detail-description').textContent,/Klimaanlage kühlt/);
 get('job-detail-close').onclick();
 assert.equal(get('job-dialog').open,false);
 
