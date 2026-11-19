@@ -1,0 +1,34 @@
+name: Check OficioRD marketplace demo
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'demo/**'
+      - 'functions/api/marketplace/**'
+      - 'migrations/0003_marketplace.sql'
+      - '.github/workflows/check-marketplace.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verify demo reachable, and marketplace writes stay closed
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            code=$(curl --silent --show-error --location --output /tmp/demo.html --write-out '%{http_code}' https://oficiord.pages.dev/demo/) || code=000
+            if [ "$code" = "200" ] && grep -q 'Demostración con datos ficticios' /tmp/demo.html; then
+              break
+            fi
+            echo "Deployment not ready (HTTP $code)"
+            sleep 10
+          done
+          grep -q 'Demostración con datos ficticios' /tmp/demo.html
+          for endpoint in profiles jobs proposals; do
+            code=$(curl --silent --show-error --request POST --header 'Content-Type: application/json' --data '{}' --output /tmp/mkt.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/marketplace/$endpoint")
+            test "$code" = "503"
+            echo "PASS: $endpoint public writes closed"
+          done
