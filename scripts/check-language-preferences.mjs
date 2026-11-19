@@ -26,7 +26,7 @@ function simulate({path='/',query='',browser=['es-DO'],saved=null}={}){
    assign(url){calls.push(['assign',url])}
   },
   URLSearchParams,Option:class{constructor(label,value){this.label=label;this.value=value}},
-  NodeFilter:{SHOW_TEXT:4},MutationObserver:class{observe(){},disconnect(){}},
+  NodeFilter:{SHOW_TEXT:4},MutationObserver:class{observe(){} disconnect(){}},
   queueMicrotask(fn){fn()},WeakMap,Map,Object,String
  };
  vm.runInNewContext(source,context,{timeout:2000});
