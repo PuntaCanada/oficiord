@@ -1,0 +1,43 @@
+name: OficioRD demo browser regression
+on:
+  push:
+    branches: [main, 'feature/**']
+    paths:
+      - 'index.html'
+      - 'account/**'
+      - 'demo/**'
+      - 'assets/**'
+      - 'tests/demo-browser.mjs'
+      - '.github/workflows/demo-browser.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'account/**'
+      - 'demo/**'
+      - 'assets/**'
+      - 'tests/demo-browser.mjs'
+      - '.github/workflows/demo-browser.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install temporary browser test dependencies
+        run: npm install --no-save --no-package-lock playwright @axe-core/playwright
+      - name: Install Chrome-compatible Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start static preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/oficiord-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+      - name: Test desktop, tablet, mobile, navigation and WCAG
+        run: node tests/demo-browser.mjs

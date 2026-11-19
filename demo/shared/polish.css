@@ -65,3 +65,30 @@
 .od-noscript p{margin:6px 0}.od-noscript a{color:#125978;font-weight:800}
 :where(.panel[tabindex="-1"]):focus{outline:none}
 :where(.panel[tabindex="-1"]):focus-visible{outline:3px solid #d39730;outline-offset:3px}
+
+/* Shared responsive, status and focus language: fictional demos only. */
+:where(.empty,.warning,.notice,.selected-note,.demo-success,.job-no-match,[role="alert"]){overflow-wrap:anywhere}
+:where(.empty){background-color:#f4f9fc;border:1px solid #d2e4ee;border-left:4px solid #db9d36;border-radius:12px;padding:18px;color:#31566d}
+:where(.warning,.notice){border-radius:12px}
+:where(input,select,textarea){font-size:max(16px,1em)}
+:where(button,a,summary,select,input,textarea):focus-visible{outline:3px solid #ce8d28;outline-offset:3px}
+:where([role="status"]){overflow-wrap:anywhere}
+:where([hidden]){display:none!important}
+@media(max-width:620px){
+ :where(.controls,.filters,.offer-actions,.quote-actions,.reply-buttons,.quick-answers){min-width:0}
+ :where(.controls select,.controls input,.filters select,.filters input){max-width:100%}
+ :where(.btn,.primary,.secondary,.builder-link){min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){:root{scroll-behavior:auto}}
+
+/* WCAG AA contrast corrections verified against real Chromium/axe element reports.
+   Muted explanatory text must be readable on pale cards, badges and page surfaces. */
+:is(.photo-note,.subtext,.quote-top small,.job-choice small,.status-step,
+ #profile-categories,#thread-warning,#perspective-label,#job-meta,#job-badge,
+ #offers-intro,#messages-intro,#message-note,#trust-description,
+ #t-step2,#t-step3,#t-noticeInline,#t-youCreated,#preview-meta,#t-footer,
+ #fine,#footer,.notice-small,.muted){color:#365367}
+:is(.job-choice small,.status-step,#profile-categories,
+ #phase-prepared,#phase-selected){color:#2e5267}
+:is(.photo-note,#t-noticeInline,#t-youCreated,#preview-meta){color:#31566b}
+:is(footer,#footer,#t-footer){color:#405c6b}

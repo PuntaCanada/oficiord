@@ -9,3 +9,16 @@
 .od-demo-nav-link:focus-visible{outline:3px solid #d89a2a;outline-offset:2px}
 @media(max-width:620px){.od-demo-nav-inner{display:block;padding:8px 11px}.od-demo-nav-label{display:block;margin-bottom:3px}.od-demo-nav-scroll{padding-bottom:9px}.od-demo-nav-link{min-height:46px;padding:10px 13px}}
 @media(prefers-contrast:more){.od-demo-nav-link{border:2px solid currentColor}}
+
+/* Unified accessible touch navigation; stays inside the page on narrow screens. */
+.od-demo-nav{--od-nav-shadow:0 5px 18px rgba(14,53,78,.09)}
+.od-demo-nav-inner{max-width:1200px}
+.od-demo-nav-link{transition:background-color .15s ease,border-color .15s ease;flex-shrink:0}
+.od-demo-nav-link[aria-current=page]{box-shadow:inset 0 -3px 0 #ffc45e}
+.od-demo-nav-scroll:focus-visible{outline:3px solid #d89a2a;outline-offset:0;border-radius:9px}
+@media(max-width:620px){
+ .od-demo-nav-label{font-size:12px;margin-bottom:6px}
+ .od-demo-nav-scroll{scroll-snap-type:x proximity;scroll-padding-inline:4px}
+ .od-demo-nav-link{scroll-snap-align:start;min-height:48px}
+}
+@media(prefers-reduced-motion:reduce){.od-demo-nav-link{transition:none}}
