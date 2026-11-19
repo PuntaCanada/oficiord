@@ -69,6 +69,7 @@ i18n=(ROOT/"i18n.js").read_text(encoding="utf-8")
 for marker in ['es:"🇩🇴 Español"','en:"🇺🇸 English"','de:"🇩🇪 Deutsch"','fr:"🇫🇷 Français"','ht:"🇭🇹 Kreyòl ayisyen"']:
     assert marker in i18n, f"Missing language: {marker}"
 assert '<script src="/i18n.js" defer></script>' in (ROOT/"index.html").read_text(encoding="utf-8")
+subprocess.run(["node",str(ROOT/"scripts/check-language-preferences.mjs")],check=True)
 print("PASS: five-language selector loaded")
 
 # Each language is an independent, indexable URL with consistent hreflang links.
