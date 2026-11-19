@@ -10,6 +10,7 @@ db = sqlite3.connect(":memory:")
 db.execute("PRAGMA foreign_keys=ON")
 db.executescript((ROOT / "migrations/0001_init.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0002_reports.sql").read_text(encoding="utf-8"))
+db.executescript((ROOT / "migrations/0003_marketplace.sql").read_text(encoding="utf-8"))
 db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email) VALUES(?,?,?,?,?,?,?)",
   ("a"*36,"job","Prueba","Higüey","Otros","Descripción de prueba","fake@example.invalid"))
 db.execute("INSERT INTO reports(id,submission_id,reason,details) VALUES(?,?,?,?)",
@@ -20,7 +21,9 @@ assert db.execute("SELECT count(*) FROM reports").fetchone()[0] == 0, "Reports m
 print("PASS: D1 SQL migrations, foreign key cascade and report statuses")
 
 for path in ["functions/api/reports.js","functions/api/admin/reports.js",
-             "functions/api/config.js","functions/api/submissions.js","i18n.js"]:
+             "functions/api/config.js","functions/api/submissions.js","i18n.js",
+             "functions/api/marketplace/profiles.js","functions/api/marketplace/jobs.js",
+             "functions/api/marketplace/proposals.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -40,7 +43,7 @@ class Scripts(HTMLParser):
         if self.inside:
             self.scripts[-1] += data
 
-for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/index.html","admin/index.html"]:
+for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/index.html","admin/index.html","demo/index.html"]:
     parser=Scripts()
     parser.feed((ROOT/path).read_text(encoding="utf-8"))
     assert parser.scripts, f"No JS script in {path}"
@@ -76,3 +79,27 @@ robots=(ROOT/"robots.txt").read_text(encoding="utf-8")
 assert "Sitemap: https://oficiord.pages.dev/sitemap.xml" in robots
 assert "Disallow: /admin/" in robots and "Disallow: /api/" in robots
 print("PASS: five indexable pages, distinct titles, canonicals, hreflang, XML sitemap and robots")
+
+# Future marketplace schema is valid, preserves privacy and supports a coherent offer relation.
+db.execute("INSERT INTO provider_profiles(id,display_name,city,category,introduction,contact_email) VALUES(?,?,?,?,?,?)",
+  ("provider-1","Demo Proveedor","Higüey","Plomería","Perfil ficticio","test@example.invalid"))
+db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email,status) VALUES(?,?,?,?,?,?,?,?)",
+  ("job-demo-1","job","Trabajo de demostración","Higüey","Plomería","Descripción inventada","test@example.invalid","approved"))
+db.execute("INSERT INTO job_details(submission_id,estimated_budget_dop) VALUES(?,?)",("job-demo-1",3500))
+db.execute("INSERT INTO proposals(id,submission_id,provider_id,price_dop,description) VALUES(?,?,?,?,?)",
+  ("offer-1","job-demo-1","provider-1",3400,"Propuesta de prueba segura"))
+assert db.execute("SELECT price_dop FROM proposals WHERE id='offer-1'").fetchone()[0]==3400
+try:
+    db.execute("INSERT INTO proposals(id,submission_id,provider_id,description) VALUES(?,?,?,?)",
+      ("offer-2","job-demo-1","provider-1","No duplicadas"))
+    raise AssertionError("Duplicate offer should be rejected")
+except sqlite3.IntegrityError:
+    pass
+db.execute("DELETE FROM submissions WHERE id='job-demo-1'")
+assert db.execute("SELECT count(*) FROM proposals").fetchone()[0]==0
+print("PASS: future profiles, job details, offer uniqueness, cascade")
+for path in ["functions/api/marketplace/profiles.js","functions/api/marketplace/jobs.js","functions/api/marketplace/proposals.js"]:
+    source=(ROOT/path).read_text(encoding="utf-8")
+    assert "onRequestPost" in source and ("NOT_ENABLED" in source or "WRITE_DISABLED" in source)
+assert "fetch(" not in (ROOT/"demo/index.html").read_text(encoding="utf-8"), "Demo must not send requests"
+print("PASS: all marketplace writes closed and demo makes no network requests")
