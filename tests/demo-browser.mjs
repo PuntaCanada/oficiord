@@ -58,7 +58,7 @@ for(const width of [390,768,1365]){
   await journey.locator('#od-find-service').selectOption('ac');
   await journey.locator('#od-find-zone').selectOption('Higüey');
   await journey.locator('.od-find-submit').click();
-  await journey.waitForURL(/\\/demo\\/\\?.*category=ac/);
+  await journey.waitForURL(url=>url.pathname==='/demo/'&&url.searchParams.get('category')==='ac');
   if(await journey.locator('#category').inputValue()!=='ac')throw new Error('Service filter was lost');
   if(await journey.locator('#city').inputValue()!=='Higüey')throw new Error('Zone filter was lost');
   if(await journey.locator('#pros .card').count()!==1)throw new Error('Expected one fictional matching profile');
