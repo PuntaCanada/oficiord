@@ -1,0 +1,55 @@
+name: OficioRD real Chromium mobile checks
+
+on:
+  pull_request:
+    paths:
+      - 'demo/**'
+      - 'account/**'
+      - 'assets/**'
+      - 'flags/**'
+      - 'scripts/check-browser-mobile.mjs'
+      - '.github/workflows/check-browser-mobile.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'demo/**'
+      - 'account/**'
+      - 'assets/**'
+      - 'flags/**'
+      - 'scripts/check-browser-mobile.mjs'
+      - '.github/workflows/check-browser-mobile.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CI: 'true'
+      PORT: '8765'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Find preinstalled Chrome without downloading browsers
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME"
+          echo "CHROME_BIN=$CHROME" >> "$GITHUB_ENV"
+          "$CHROME" --version
+      - name: Install ephemeral open source browser controller (no browser download)
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund --package-lock=false playwright-core@1.56.1
+      - name: Run local-only real Chrome and mobile viewport smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server "$PORT" --bind 127.0.0.1 > /tmp/oficiord-static-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          node scripts/check-browser-mobile.mjs
