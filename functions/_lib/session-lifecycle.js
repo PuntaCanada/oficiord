@@ -38,6 +38,19 @@ export async function revokeSession(db,rawToken,now=nowSeconds()){
  return result.meta?.changes===1;
 }
 
+// Call only from authenticated account context, never from client-supplied account ID.
+// Future "log out on all devices" helper. No live public endpoint.
+export async function revokeAllOwnSessions(db,verifiedAccount,now=nowSeconds()){
+ if(!verifiedAccount||verifiedAccount.status!=='active'||
+ !['customer','provider'].includes(verifiedAccount.role)||
+ typeof verifiedAccount.id!=='string'||verifiedAccount.id.length<1||
+ !Number.isSafeInteger(now)||now<0)throw new Error('AUTH_REQUIRED');
+ const result=await db.prepare(
+  'UPDATE account_sessions SET revoked_at=? WHERE account_id=? AND revoked_at IS NULL'
+ ).bind(now,verifiedAccount.id).run();
+ return result.meta?.changes||0;
+}
+
 export function expiredSessionCookie(){
  return '__Host-oficiord_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0';
 }
