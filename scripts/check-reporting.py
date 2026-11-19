@@ -14,6 +14,7 @@ db.executescript((ROOT / "migrations/0003_marketplace.sql").read_text(encoding="
 db.executescript((ROOT / "migrations/0004_accounts.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0005_magic_links.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0006_privacy_requests.sql").read_text(encoding="utf-8"))
+db.executescript((ROOT / "migrations/0007_login_redemptions.sql").read_text(encoding="utf-8"))
 db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email) VALUES(?,?,?,?,?,?,?)",
   ("a"*36,"job","Prueba","Higüey","Otros","Descripción de prueba","fake@example.invalid"))
 db.execute("INSERT INTO reports(id,submission_id,reason,details) VALUES(?,?,?,?)",
@@ -33,7 +34,8 @@ for path in ["functions/api/reports.js","functions/api/admin/reports.js",
              "functions/api/account/verify.js","functions/_lib/magic-link.js",
              "functions/_lib/session-lifecycle.js","functions/api/account/logout.js",
              "functions/api/account/export.js","functions/api/account/sessions.js",
-             "functions/api/account/privacy.js","functions/_lib/login-abuse.js"]:
+             "functions/api/account/privacy.js","functions/_lib/login-abuse.js",
+             "functions/_lib/atomic-login.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -222,3 +224,60 @@ assert charge_quota(1700000000) is None, "Rate limit must deny over quota"
 assert charge_quota(1700003600)==(1,1700007200), "Expired bucket must reset"
 subprocess.run(["node",str(ROOT/"scripts/check-login-abuse.mjs")],check=True)
 print("PASS: atomic SQLite throttling and HMAC abuse protection")
+
+# Integration test: run the three D1 batch statements in one SQLite transaction,
+# using only synthetic users. A second redemption produces no new session.
+db.execute("INSERT INTO accounts(id,email,role,status,email_verified_at) VALUES(?,?,?,?,?)",
+ ("atomic-user","atomic@example.invalid","customer","active","2026-01-01"))
+db.execute("INSERT INTO accounts(id,email,role,status) VALUES(?,?,?,?)",
+ ("pending-atomic","pending@example.invalid","customer","pending"))
+for suffix,account,expires in [("f","atomic-user",1700000600),("g","pending-atomic",1700000600),("h","atomic-user",1700000100)]:
+ db.execute("INSERT INTO account_login_tokens(token_hash,account_id,expires_at,created_at) VALUES(?,?,?,?)",
+  (suffix*64,account,expires,1700000000))
+sql_redemption="""INSERT INTO account_login_redemptions(token_hash,session_hash,created_at)
+ SELECT t.token_hash,?,? FROM account_login_tokens t JOIN accounts a ON a.id=t.account_id
+ WHERE t.token_hash=? AND t.used_at IS NULL AND t.expires_at>?
+ AND a.status='active' AND a.email_verified_at IS NOT NULL"""
+sql_session="""INSERT INTO account_sessions(token_hash,account_id,expires_at)
+ SELECT ?,t.account_id,? FROM account_login_redemptions r
+ JOIN account_login_tokens t ON t.token_hash=r.token_hash
+ JOIN accounts a ON a.id=t.account_id
+ WHERE r.token_hash=? AND r.session_hash=? AND t.used_at IS NULL AND t.expires_at>?
+ AND a.status='active' AND a.email_verified_at IS NOT NULL"""
+sql_used="""UPDATE account_login_tokens SET used_at=? WHERE token_hash=? AND used_at IS NULL
+ AND EXISTS(SELECT 1 FROM account_login_redemptions r
+ JOIN account_sessions s ON s.token_hash=r.session_hash
+ WHERE r.token_hash=? AND r.session_hash=? AND s.expires_at>?)"""
+def batch_redeem(link,session,now=1700000200):
+ db.execute("SAVEPOINT atomic_login")
+ try:
+  counts=[]
+  before=db.total_changes
+  db.execute(sql_redemption,(session,now,link,now))
+  counts.append(db.total_changes-before)
+  before=db.total_changes
+  db.execute(sql_session,(session,now+86400,link,session,now))
+  counts.append(db.total_changes-before)
+  before=db.total_changes
+  db.execute(sql_used,(now,link,link,session,now))
+  counts.append(db.total_changes-before)
+  db.execute("RELEASE SAVEPOINT atomic_login")
+  return counts
+ except sqlite3.IntegrityError:
+  db.execute("ROLLBACK TO SAVEPOINT atomic_login")
+  db.execute("RELEASE SAVEPOINT atomic_login")
+  return None
+assert batch_redeem("f"*64,"1"*64)==[1,1,1]
+assert batch_redeem("f"*64,"2"*64)==[0,0,0], "Replayed token cannot issue session"
+assert batch_redeem("g"*64,"3"*64)==[0,0,0], "Unverified account cannot issue session"
+assert batch_redeem("h"*64,"4"*64)==[0,0,0], "Expired token cannot issue session"
+assert db.execute("SELECT count(*) FROM account_sessions WHERE account_id='atomic-user'").fetchone()[0]==1
+assert db.execute("SELECT count(*) FROM account_login_redemptions").fetchone()[0]==1
+# Deliberately inject a session hash conflict and verify atomic rollback.
+db.execute("INSERT INTO account_login_tokens(token_hash,account_id,expires_at,created_at) VALUES(?,?,?,?)",
+ ("i"*64,"atomic-user",1700000600,1700000000))
+assert batch_redeem("i"*64,"1"*64) is None
+assert db.execute("SELECT count(*) FROM account_login_redemptions WHERE token_hash=?",("i"*64,)).fetchone()[0]==0
+assert db.execute("SELECT used_at FROM account_login_tokens WHERE token_hash=?",("i"*64,)).fetchone()[0] is None
+subprocess.run(["node",str(ROOT/"scripts/check-atomic-login.mjs")],check=True)
+print("PASS: real SQLite integration for atomic login, replay, expiry, blocked accounts and rollback")
