@@ -38,6 +38,19 @@ async function noHorizontalOverflow(page,width,label){
  assert.ok(info.doc<=info.win+2,label+' document overflow: '+JSON.stringify(info));
  assert.ok(info.body<=info.win+2,label+' body overflow: '+JSON.stringify(info));
 }
+async function accessibilityChecks(page,path){
+ const errors=await page.locator('button,input,select,textarea').evaluateAll(elements=>elements.filter(el=>{
+  const style=getComputedStyle(el);
+  if(style.display==='none'||style.visibility==='hidden'||el.closest('[hidden]'))return false;
+  if(el.tagName==='BUTTON')return !((el.textContent||'').trim()||el.getAttribute('aria-label')||el.getAttribute('aria-labelledby'));
+  return !(el.labels?.length||el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||el.getAttribute('title'));
+ }).map(el=>el.outerHTML.slice(0,160)));
+ assert.deepEqual(errors,[],path+' visible controls without accessible names');
+ const hasReducedMotion=await page.evaluate(()=>Array.from(document.styleSheets).some(sheet=>{
+  try{return [...sheet.cssRules].some(rule=>rule.conditionText?.includes('prefers-reduced-motion'));}catch{return false;}
+ }));
+ assert.equal(hasReducedMotion,true,path+' reduced motion rule');
+}
 async function navigationChecks(page,path){
  const nav=page.locator('#demo-cross-navigation nav');
  await nav.waitFor({state:'visible'});
@@ -79,6 +92,7 @@ try{
    await noHorizontalOverflow(page,width,path);
    await documentChecks(page,path);
    await navigationChecks(page,path);
+   await accessibilityChecks(page,path);
    scenarios++;
    await page.close();
   }
@@ -128,11 +142,14 @@ try{
  await quote.locator('#draft-title').fill('Beispielprüfung einer Klimaanlage');
  assert.equal(await quote.locator('#draft-title').getAttribute('aria-invalid'),'false');
  await quote.locator('#draft-next').click();
+ assert.equal(await quote.evaluate(()=>document.activeElement?.id),'panel-2','Focus enters comparison step');
  assert.ok(await quote.locator('#quote-list .quote-card').count()>=3,'More than two sample quotes');
  await quote.locator('#quote-list .quote-card button').first().click();
  assert.equal(await quote.locator('#panel-3').isVisible(),true);
+ assert.equal(await quote.evaluate(()=>document.activeElement?.id),'panel-3','Focus enters fictional selection step');
  await quote.locator('#reset-demo').click();
  assert.equal(await quote.locator('#panel-1').isVisible(),true);
+ assert.equal(await quote.evaluate(()=>document.activeElement?.id),'panel-1','Focus returns to first step');
  scenarios++;
  await quote.close();
  const provider=await openPage(context,'/demo/profesional/?lang=de');
@@ -189,6 +206,16 @@ try{
  scenarios++;
  await reset.close();
  await context.close();
+ // Degraded experience should be explicit when JavaScript is unavailable.
+ const disabled=await browser.newContext({viewport:{width:375,height:812},javaScriptEnabled:false});
+ for(const route of ['/demo/','/demo/crear/','/demo/cliente/','/demo/profesional/','/demo/recorrido/','/demo/startcheck/']){
+  const page=await openPage(disabled,route+'?lang=de');
+  assert.equal(await page.locator('.od-noscript').isVisible(),true,route+' visible no-JS explanation');
+  assert.ok((await page.locator('.od-noscript').innerText()).includes('JavaScript'));
+  assert.equal(await page.locator('.od-noscript a[href="/"]').count(),1);
+  scenarios++;await page.close();
+ }
+ await disabled.close();
  assert.deepEqual(problems,[],'Unexpected browser errors or outbound requests');
  console.log('PASS: '+scenarios+' actual Chromium checks (mobile 320/390/768/1280, 5 languages, both roles, example quotes, forms, keyboard, privacy)');
 }finally{
