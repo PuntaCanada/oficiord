@@ -23,6 +23,11 @@ const pros=[
  {id:'p3',name:'Profesional de ejemplo C',city:'Punta Cana',service:['Punta Cana','Bávaro','Verón'],cats:['electric','paint'],bio:'Instalaciones y acabados (perfil ficticio).'},
  {id:'p4',name:'Profesional de ejemplo D',city:'Verón',service:['Verón','Higüey'],cats:['clean'],bio:'Limpieza de hogares y alojamientos (perfil ficticio).'}
 ];
+const localizedJobs={"en":{"j1":["Air conditioner inspection","A cooling unit is not working properly (fictional example)."],"j2":["Fix a small leak","A pipe has a minor leak (fictional example)."],"j3":["Install indoor lights","Safe installation of indoor lighting (fictional example)."],"j4":["Apartment cleaning","General cleaning before guests arrive (fictional example)."],"j5":["Paint a bedroom","Prepare and paint a bedroom (fictional example)."],"j6":["Repair a washing machine","A washing machine does not spin (fictional example)."]},"de":{"j1":["Klimaanlage überprüfen","Eine Klimaanlage kühlt nicht richtig (fiktives Beispiel)."],"j2":["Kleines Wasserleck reparieren","Eine Leitung hat ein kleines Leck (fiktives Beispiel)."],"j3":["Lampen installieren","Innenbeleuchtung fachgerecht montieren (fiktives Beispiel)."],"j4":["Wohnung reinigen","Grundreinigung vor der Ankunft von Gästen (fiktives Beispiel)."],"j5":["Schlafzimmer streichen","Ein Zimmer vorbereiten und streichen (fiktives Beispiel)."],"j6":["Waschmaschine reparieren","Die Waschmaschine schleudert nicht (fiktives Beispiel)."]},"fr":{"j1":["Vérifier une climatisation","Un climatiseur refroidit mal (exemple fictif)."],"j2":["Réparer une petite fuite","Une canalisation présente une petite fuite (exemple fictif)."],"j3":["Installer des luminaires","Installer des luminaires à l’intérieur (exemple fictif)."],"j4":["Nettoyer un appartement","Grand ménage avant l’arrivée de visiteurs (exemple fictif)."],"j5":["Peindre une chambre","Préparer et peindre une chambre (exemple fictif)."],"j6":["Réparer un lave-linge","La machine à laver n’essore pas (exemple fictif)."]},"ht":{"j1":["Tcheke èkondisyone a","Yon èkondisyone pa refwadi byen (egzanp envante)."],"j2":["Repare yon ti flit dlo","Yon tiyo gen yon ti flit (egzanp envante)."],"j3":["Enstale limyè","Enstale limyè anndan kay (egzanp envante)."],"j4":["Netwaye yon apatman","Netwayaj anvan vizitè yo rive (egzanp envante)."],"j5":["Pentire yon chanm","Prepare epi pentire yon chanm (egzanp envante)."],"j6":["Repare yon machin lave","Machin lave a pa fè tòde (egzanp envante)."]}};
+function jobText(job){
+ const item=localizedJobs[language]?.[job.id];
+ return {title:item?.[0]||job.title,description:item?.[1]||job.description};
+}
 const cats={ac:{es:'Aire acondicionado',en:'Air conditioning',de:'Klimaanlagen',fr:'Climatisation',ht:'Èkondisyone'},plumbing:{es:'Plomería',en:'Plumbing',de:'Sanitär',fr:'Plomberie',ht:'Plonbri'},electric:{es:'Electricidad',en:'Electrical',de:'Elektroarbeiten',fr:'Électricité',ht:'Elektrisite'},clean:{es:'Limpieza',en:'Cleaning',de:'Reinigung',fr:'Nettoyage',ht:'Netwayaj'},paint:{es:'Pintura',en:'Painting',de:'Malerarbeiten',fr:'Peinture',ht:'Penti'},appliance:{es:'Electrodomésticos',en:'Appliances',de:'Haushaltsgeräte',fr:'Électroménager',ht:'Aparèy kay'}};
 const words={
  es:{back:'← Volver al sitio',heading:'Así funcionará OficioRD',warnTitle:'Demostración con datos ficticios.',warn:'No hay cuentas, personas, solicitudes ni presupuestos reales. No se envía ni almacena información.',city:'Zona',allCities:'Todas las zonas',category:'Servicio',allCategories:'Todos los servicios',search:'Buscar',placeholder:'Ej.: lavadora',clear:'Limpiar filtros',jobs:'Trabajos de ejemplo',pros:'Profesionales de ejemplo',empty:'No hay resultados para estos filtros. Prueba otra zona o servicio.',count:'resultados',areas:'Atiende en',fiction:'Ejemplo ficticio',imageNote:'Imagen generada con IA · solo ejemplo',viewProfile:'Ver perfil',servicesTitle:'Servicios',galleryTitle:'Imágenes de ejemplo',profileNotice:'Perfil e imágenes generados para demostración. No representan profesionales registrados ni trabajos realizados.',noReviews:'No hay reseñas ni verificaciones reales.',galleryExample:'Imagen ilustrativa generada con IA · no es un trabajo realizado',offer:'Simular una oferta',offerTitle:'Simular una oferta',offerDesc:'Elige un trabajo y un profesional de ejemplo. No se realiza ninguna contratación.',dialog:'Oferta de demostración',job:'Trabajo',pro:'Profesional',price:'Precio ficticio (RD$)',warning:'Solo simulación. Nunca introduzcas datos personales.',submit:'Ver resultado',result:'Simulación únicamente: no se ha enviado ni guardado nada.',viewJob:'Ver detalles',jobDetail:'Detalle del trabajo ficticio',jobWarning:'Esta solicitud es un ejemplo inventado. No hay cliente ni presupuesto real.',jobMatches:'Profesionales de ejemplo para este trabajo',jobMatchNote:'Coincidencia ilustrativa por especialidad y zona; no implica disponibilidad ni recomendación.',jobNoMatch:'No hay un profesional de ejemplo para esta combinación. Prueba otra solicitud. No hay contactos reales.',jobChoose:'Simular con este perfil',jobBack:'Volver a la búsqueda',stepOne:'1 · Explora',stepTwo:'2 · Compara',stepThree:'3 · Simula',offerMatch:'Combinación compatible dentro de estos datos ficticios. No se enviará ninguna oferta.',offerMismatch:'Este perfil no cubre la especialidad o la zona de este trabajo ficticio. Selecciona un profesional compatible.',offerNoMatch:'No hay perfiles de ejemplo compatibles con este trabajo. Prueba otro.',footer:'Prototipo sin datos personales ni contactos. Todas las publicaciones son inventadas.',more:'Más idiomas ▾'},
@@ -127,11 +132,11 @@ function openJob(jobId){
  if(!job)return;
  activeJob=job.id;
  const t=words[language];
- $('job-detail-title').textContent=job.title;
+ $('job-detail-title').textContent=jobText(job).title;
  $('job-detail-photo').src='/assets/oficiord-'+(cardPhoto[job.cat]||'hero')+'.webp';
- $('job-detail-photo').alt=job.title+' · '+t.imageNote;
+ $('job-detail-photo').alt=jobText(job).title+' · '+t.imageNote;
  $('job-detail-meta').textContent=job.city+' · '+cats[job.cat][language]+' · '+t.fiction;
- $('job-detail-description').textContent=job.description;
+ $('job-detail-description').textContent=jobText(job).description;
  $('job-demo-warning').textContent=t.jobWarning;
  $('job-match-title').textContent=t.jobMatches;
  $('job-match-explanation').textContent=t.jobMatchNote;
@@ -170,13 +175,13 @@ function updateOfferProfessionals(wantedId=null){
 }
 function refresh(){
  const t=words[language];const filteredJobs=filterItems(jobs,'job'),filteredPros=filterItems(pros,'pro');
- $('jobs').replaceChildren(...filteredJobs.map(x=>textCard(x.title,x.city+' · '+cats[x.cat][language],x.description,[cats[x.cat][language]],x.cat,null,x.id)));
+ $('jobs').replaceChildren(...filteredJobs.map(x=>textCard(jobText(x).title,x.city+' · '+cats[x.cat][language],jobText(x).description,[cats[x.cat][language]],x.cat,null,x.id)));
  $('pros').replaceChildren(...filteredPros.map(x=>textCard(x.name,x.city+' · '+x.cats.map(c=>cats[c][language]).join(', '),x.bio,[t.areas+': '+x.service.join(', ')],x.cats[0],x.id)));
  $('job-count').textContent=filteredJobs.length+' '+t.count;$('pro-count').textContent=filteredPros.length+' '+t.count;
  $('jobs-empty').hidden=filteredJobs.length!==0;$('pros-empty').hidden=filteredPros.length!==0;
  $('jobs-empty').textContent=t.empty;$('pros-empty').textContent=t.empty;
  const previousJob=$('job').value;
- $('job').replaceChildren(...jobs.map(x=>new Option(x.title,x.id)));
+ $('job').replaceChildren(...jobs.map(x=>new Option(jobText(x).title,x.id)));
  $('job').value=jobs.some(x=>x.id===previousJob)?previousJob:jobs[0].id;
  updateOfferProfessionals();
 }
