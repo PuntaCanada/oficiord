@@ -53,7 +53,8 @@ $('view').onchange=()=>{
  const filter=$('filter');filter.replaceChildren();
  const statuses=$('view').value==='reports'?[['pending','Pendientes'],['reviewed','Revisadas'],['dismissed','Descartadas']]:[['pending','Pendientes'],['approved','Aprobadas'],['rejected','Rechazadas']];
  for(const [value,label] of statuses)filter.add(new Option(label,value));
- $('results').replaceChildren();message('Selecciona Cargar solicitudes.');
+ $('load').textContent=$('view').value==='reports'?'Cargar denuncias':'Cargar solicitudes';
+ $('results').replaceChildren();message('Selecciona '+$('load').textContent+'.');
 };
 async function load(){
  const input=$('token').value.trim();if(input)secret=input;

@@ -24,3 +24,9 @@ El sistema permite informar sobre una publicación aprobada por motivo **spam, p
 
 ## Pruebas sin información real
 GitHub Actions: `OficioRD report system checks`. Ejecuta ambas migraciones en SQLite en memoria, valida los scripts y comprueba que los envíos permanecen deshabilitados.
+
+## Prueba de migración en producción
+- Abrir `https://oficiord.pages.dev/api/health` tras el despliegue; `reportingSchema: "ready"` confirma que las tablas `reports` y `report_rate_limits` existen en la D1 vinculada a Production.
+- Esta prueba es solo de lectura y no crea datos ni activa las denuncias.
+- El workflow `Check OficioRD public API` también comprueba el esquema, acceso anónimo denegado y las dos entradas públicas desactivadas.
+- Los tests no validan la autenticación con clave real ni el ciclo completo de denuncia (requiere pruebas controladas con datos ficticios y medidas de privacidad previas).

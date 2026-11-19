@@ -22,7 +22,7 @@ jobs:
             code=$(curl --max-time 20 --silent --show-error --location --output /tmp/api.json --write-out '%{http_code}' "$URL") || code=000
             echo "Attempt $attempt: HTTP $code"
             if [ "$code" = "200" ]; then
-              python3 -c 'import json; d=json.load(open("/tmp/api.json", encoding="utf-8")); assert d.get("ok") is True and d.get("database")=="connected", "D1 not ready"; print("PASS: D1 binding and query working")'
+              python3 -c 'import json; d=json.load(open("/tmp/api.json", encoding="utf-8")); assert d.get("ok") is True and d.get("database")=="connected", "D1 not ready"; assert d.get("reportingSchema")=="ready", "D1 reporting migration missing"; print("PASS: D1 binding and reports schema ready")'
               echo "Checking safe public configuration and closed submission gate"
               curl --fail --show-error --silent --location --max-time 20 "https://oficiord.pages.dev/api/config" --output /tmp/config.json
               python3 -c 'import json; d=json.load(open("/tmp/config.json",encoding="utf-8")); assert d.get("submissionsEnabled") is False, "Submissions unexpectedly enabled"; assert "TURNSTILE_SECRET" not in str(d) and "secret" not in str(d).lower(), "Secret field leaked"; assert d.get("turnstileConfigured") is True, "Turnstile variables missing"; print("PASS: Turnstile configured; submissions remain disabled")'
