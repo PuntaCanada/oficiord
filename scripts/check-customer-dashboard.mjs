@@ -89,7 +89,7 @@ get('quote-list').children[0].children.at(-1).children[1].click();
 assert.equal(get('status-selected').dataset.active,'true');
 assert.equal(get('selected-note').hidden,false);
 get('job-two').click();
-assert.match(get('job-title').textContent,/Wasserleitung/);
+assert.equal(get('job-title').textContent,exampleJobs[1].title.de);
 assert.equal(get('status-quotes').dataset.active,'true');
 assert.equal(get('comparison-list').children.length,0);
 assert.equal(get('message-list').children.length,2);
