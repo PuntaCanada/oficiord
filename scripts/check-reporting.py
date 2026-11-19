@@ -12,6 +12,7 @@ db.executescript((ROOT / "migrations/0001_init.sql").read_text(encoding="utf-8")
 db.executescript((ROOT / "migrations/0002_reports.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0003_marketplace.sql").read_text(encoding="utf-8"))
 db.executescript((ROOT / "migrations/0004_accounts.sql").read_text(encoding="utf-8"))
+db.executescript((ROOT / "migrations/0005_magic_links.sql").read_text(encoding="utf-8"))
 db.execute("INSERT INTO submissions(id,kind,title,city,category,description,contact_email) VALUES(?,?,?,?,?,?,?)",
   ("a"*36,"job","Prueba","Higüey","Otros","Descripción de prueba","fake@example.invalid"))
 db.execute("INSERT INTO reports(id,submission_id,reason,details) VALUES(?,?,?,?)",
@@ -26,7 +27,9 @@ for path in ["functions/api/reports.js","functions/api/admin/reports.js",
              "functions/api/marketplace/profiles.js","functions/api/marketplace/jobs.js",
              "functions/api/marketplace/proposals.js",
              "functions/_lib/account-auth.js","functions/api/account/me.js",
-             "functions/api/account/login.js","functions/api/account/registration.js"]:
+             "functions/api/account/login.js","functions/api/account/registration.js",
+             "functions/api/account/dashboard.js","functions/api/account/magic-link.js",
+             "functions/api/account/verify.js","functions/_lib/magic-link.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -46,7 +49,7 @@ class Scripts(HTMLParser):
         if self.inside:
             self.scripts[-1] += data
 
-for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/index.html","admin/index.html","demo/index.html"]:
+for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/index.html","admin/index.html","demo/index.html","account/index.html","account/verify/index.html"]:
     parser=Scripts()
     parser.feed((ROOT/path).read_text(encoding="utf-8"))
     assert parser.scripts, f"No JS script in {path}"
@@ -138,3 +141,22 @@ assert db.execute("SELECT count(*) FROM account_sessions").fetchone()[0]==0
 assert db.execute("SELECT count(*) FROM account_jobs").fetchone()[0]==0
 subprocess.run(["node",str(ROOT/"scripts/check-accounts.mjs")],check=True)
 print("PASS: account schema, email uniqueness, sessions, ownership and role tests")
+
+# Future one-use magic-link table with no live emails or token issuance.
+db.execute("INSERT INTO accounts(id,email,role) VALUES(?,?,?)",("magic-user","magic@example.invalid","customer"))
+db.execute("INSERT INTO account_login_tokens(token_hash,account_id,expires_at,created_at) VALUES(?,?,?,?)",("b"*64,"magic-user",1700000600,1700000000))
+assert db.execute("SELECT used_at FROM account_login_tokens").fetchone()[0] is None
+db.execute("UPDATE account_login_tokens SET used_at=? WHERE token_hash=? AND used_at IS NULL AND expires_at>?",(1700000200,"b"*64,1700000200))
+assert db.execute("SELECT used_at FROM account_login_tokens").fetchone()[0]==1700000200
+db.execute("DELETE FROM accounts WHERE id='magic-user'")
+assert db.execute("SELECT count(*) FROM account_login_tokens").fetchone()[0]==0
+for path in ["functions/api/account/magic-link.js","functions/api/account/verify.js"]:
+    source=(ROOT/path).read_text(encoding="utf-8")
+    assert "MAGIC_LINK_NOT_ENABLED" in source
+    assert "fetch(" not in source
+assert "fetch(" not in (ROOT/"account/index.html").read_text(encoding="utf-8")
+assert "disabled" in (ROOT/"account/index.html").read_text(encoding="utf-8")
+for method in ["onRequestPost","onRequestPut","onRequestDelete"]:
+    assert method in (ROOT/"functions/api/account/dashboard.js").read_text(encoding="utf-8")
+subprocess.run(["node",str(ROOT/"scripts/check-magic-link.mjs")],check=True)
+print("PASS: magic-link schema, disabled signup, demo isolation and cryptographic token properties")
