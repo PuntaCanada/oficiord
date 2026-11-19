@@ -1,0 +1,45 @@
+name: Check OficioRD account preview and closed sign-in
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'account/**'
+      - 'functions/api/account/**'
+      - 'functions/_lib/magic-link.js'
+      - 'migrations/0005_magic_links.sql'
+      - '.github/workflows/check-account-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Confirm fake account demo and disabled login endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5 6 7 8; do
+            code=$(curl --silent --show-error --location --max-time 20 --output /tmp/preview.html --write-out '%{http_code}' 'https://oficiord.pages.dev/account/') || code=000
+            if [ "$code" = "200" ] && grep -q 'Área personal — demostración' /tmp/preview.html; then break; fi
+            echo "Account preview not yet deployed: HTTP $code (attempt $attempt)"
+            sleep 10
+          done
+          grep -q 'Área personal — demostración' /tmp/preview.html
+          grep -q 'id="email" type="email" disabled' /tmp/preview.html
+          grep -q 'id="login"' /tmp/preview.html
+          echo "PASS: Demo online with disabled login form"
+          for endpoint in login registration magic-link verify dashboard; do
+            code=$(curl --silent --show-error --request POST --header 'content-type: application/json' --data '{}' --output /tmp/closed.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/account/$endpoint")
+            echo "$endpoint POST HTTP $code"
+            test "$code" = "503"
+          done
+          get_code=$(curl --silent --show-error --output /tmp/get.json --write-out '%{http_code}' 'https://oficiord.pages.dev/api/account/dashboard')
+          echo "dashboard GET HTTP $get_code"
+          test "$get_code" = "503"
+          python3 -c 'import json; x=json.load(open("/tmp/get.json"));assert x["error"]=="ACCOUNTS_NOT_ENABLED"'
+          echo 'PASS: no registration, login, email dispatch, account data or dashboard writes'
