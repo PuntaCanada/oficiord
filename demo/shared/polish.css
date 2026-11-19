@@ -60,3 +60,8 @@
   border:2px solid currentColor;
  }
 }
+
+.od-noscript{max-width:1060px;margin:18px auto;padding:17px 20px;border:2px solid #d19a3c;border-radius:12px;background:#fff3d4;color:#694b17;line-height:1.6}
+.od-noscript p{margin:6px 0}.od-noscript a{color:#125978;font-weight:800}
+:where(.panel[tabindex="-1"]):focus{outline:none}
+:where(.panel[tabindex="-1"]):focus-visible{outline:3px solid #d39730;outline-offset:3px}
