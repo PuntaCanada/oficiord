@@ -1,0 +1,41 @@
+name: OficioRD report system checks
+
+on:
+  pull_request:
+    paths:
+      - 'functions/**'
+      - 'migrations/**'
+      - 'admin/**'
+      - 'index.html'
+      - 'scripts/**'
+      - '.github/workflows/check-reporting.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'functions/**'
+      - 'migrations/**'
+      - 'admin/**'
+      - 'index.html'
+      - 'scripts/**'
+      - '.github/workflows/check-reporting.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify schema, JavaScript syntax and reporting guardrails
+        run: python3 scripts/check-reporting.py
+      - name: Confirm closed reporting and submission gates
+        run: |
+          grep -q "env.REPORTS_ENABLED!=='true'" functions/api/reports.js
+          grep -q "env.SUBMISSIONS_ENABLED!=='true'" functions/api/submissions.js
+          echo "PASS: both intake gates default to closed"
