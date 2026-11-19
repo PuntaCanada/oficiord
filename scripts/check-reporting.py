@@ -29,7 +29,8 @@ for path in ["functions/api/reports.js","functions/api/admin/reports.js",
              "functions/_lib/account-auth.js","functions/api/account/me.js",
              "functions/api/account/login.js","functions/api/account/registration.js",
              "functions/api/account/dashboard.js","functions/api/account/magic-link.js",
-             "functions/api/account/verify.js","functions/_lib/magic-link.js"]:
+             "functions/api/account/verify.js","functions/_lib/magic-link.js",
+             "functions/_lib/session-lifecycle.js","functions/api/account/logout.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -160,3 +161,25 @@ for method in ["onRequestPost","onRequestPut","onRequestDelete"]:
     assert method in (ROOT/"functions/api/account/dashboard.js").read_text(encoding="utf-8")
 subprocess.run(["node",str(ROOT/"scripts/check-magic-link.mjs")],check=True)
 print("PASS: magic-link schema, disabled signup, demo isolation and cryptographic token properties")
+
+# Verify actual SQLite conditional token consumption, replay protection and expiry
+# without touching production D1.
+db.execute("INSERT INTO accounts(id,email,role,status,email_verified_at) VALUES(?,?,?,?,?)",
+  ("secure-customer","secure@example.invalid","customer","active","2026-01-01"))
+db.execute("INSERT INTO accounts(id,email,role,status,email_verified_at) VALUES(?,?,?,?,?)",
+  ("unverified-customer","unverified@example.invalid","customer","pending",None))
+for suffix,owner in [("c","secure-customer"),("d","unverified-customer"),("e","secure-customer")]:
+    db.execute("INSERT INTO account_login_tokens(token_hash,account_id,expires_at,created_at) VALUES(?,?,?,?)",
+      (suffix*64,owner,1700000600 if suffix!="e" else 1700000100,1700000000))
+sql = """UPDATE account_login_tokens SET used_at=? WHERE token_hash=? AND used_at IS NULL AND expires_at>? AND EXISTS
+ (SELECT 1 FROM accounts a WHERE a.id=account_login_tokens.account_id AND a.status='active'
+ AND a.email_verified_at IS NOT NULL) RETURNING account_id"""
+def consume(token_hash, timestamp=1700000200):
+    return db.execute(sql,(timestamp,token_hash,timestamp)).fetchone()
+assert consume("c"*64)==("secure-customer",)
+assert consume("c"*64) is None, "Token replay must fail"
+assert consume("d"*64) is None, "Unverified account token must fail"
+assert consume("e"*64) is None, "Expired token must fail"
+assert db.execute("SELECT used_at FROM account_login_tokens WHERE token_hash=?",("d"*64,)).fetchone()[0] is None
+subprocess.run(["node",str(ROOT/"scripts/check-session-lifecycle.mjs")],check=True)
+print("PASS: conditional atomic SQLite token consumption, expiry, revocation and JS session tests")

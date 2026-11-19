@@ -54,6 +54,11 @@ jobs:
               echo "Account details GET: $account_get"
               test "$account_get" = "503"
               python3 -c 'import json; d=json.load(open("/tmp/account-get.json",encoding="utf-8")); assert d.get("error")=="ACCOUNTS_NOT_ENABLED", "Account unexpectedly enabled"; print("PASS: Accounts remain disabled")'
+              echo "Checking passwordless logout cannot become active inadvertently"
+              logout_code=$(curl --silent --show-error --request POST --header 'content-type: application/json' --data '{}' --output /tmp/logout.json --write-out '%{http_code}' "https://oficiord.pages.dev/api/account/logout")
+              echo "Logout HTTP $logout_code"
+              test "$logout_code" = "503"
+              python3 -c 'import json;d=json.load(open("/tmp/logout.json",encoding="utf-8"));assert d.get("error")=="LOGOUT_NOT_ENABLED"'
               echo "Checking public moderation page is deployed"
               html_code=$(curl --silent --show-error --location --output /tmp/admin.html --write-out '%{http_code}' "https://oficiord.pages.dev/admin/")
               echo "Moderation HTML HTTP $html_code"

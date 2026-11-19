@@ -20,3 +20,11 @@
 
 **Nicht setzen:** `ACCOUNTS_ENABLED`, `SUBMISSIONS_ENABLED`, `REPORTS_ENABLED`, `MARKETPLACE_READS_ENABLED`.
 **Keine Cloudflare-Migration oder kostenpflichtige Integration für die Vorschau erforderlich.**
+
+## Erweiterung: einmalige Linkeinlösung und Sitzung (vorbereitet)
+- `functions/_lib/session-lifecycle.js`: atomare SQLite-/D1-`UPDATE ... RETURNING`-Operation für genau einen Verbrauch. Verweigert verbrauchte, abgelaufene und nicht verifizierte/gesperrte Konten.
+- Die Session wird nur als kryptografisch zufälliges, in D1 gehashtes Token vorbereitet. Eine fehlgeschlagene Session-Erstellung bleibt geschlossen. Zwischen Linkverbrauch und Session-Eintrag besteht derzeit noch keine gemeinsame Transaktion: daher vor Aktivierung gezielte Absturz-/Retry-Tests und festgelegte Wiederherstellung nötig.
+- Server-Helfer zum Widerruf von Sitzungen und zum Löschen des `__Host-`-Cookies sind vorbereitet. Der öffentliche Logout-Endpunkt antwortet absichtlich noch HTTP 503.
+- Keine JavaScript-Lösung erzeugt eine neue echte Konto-Sitzung, versendet E-Mail oder akzeptiert einen Login.
+- Tests laufen nur mit fiktiven Datensätzen und prüfen ebenfalls Token-Replay, Ablauf und Verifizierungsstatus.
+- Vor einem echten Start sind weiterhin E-Mail-Zusteller, Turnstile, Anti-Enumeration, Transaktionssicherheit, vollständige Authentifizierungskette und juristische Angaben erforderlich.
