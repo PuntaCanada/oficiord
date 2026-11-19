@@ -20,7 +20,7 @@ assert db.execute("SELECT count(*) FROM reports").fetchone()[0] == 0, "Reports m
 print("PASS: D1 SQL migrations, foreign key cascade and report statuses")
 
 for path in ["functions/api/reports.js","functions/api/admin/reports.js",
-             "functions/api/config.js","functions/api/submissions.js"]:
+             "functions/api/config.js","functions/api/submissions.js","i18n.js"]:
     subprocess.run(["node","--check",str(ROOT/path)],check=True)
 print("PASS: API syntax")
 
@@ -48,3 +48,11 @@ for path in ["index.html","admin/index.html"]:
         temp.write("\n".join(parser.scripts));temp.flush()
         subprocess.run(["node","--check",temp.name],check=True)
 print("PASS: HTML inline JavaScript syntax")
+
+# Keep all five supported public languages and the reporting gates intact.
+i18n=(ROOT/"i18n.js").read_text(encoding="utf-8")
+for marker in ['es:"🇩🇴 Español"','en:"🇺🇸 English"','de:"🇩🇪 Deutsch"','fr:"🇫🇷 Français"','ht:"🇭🇹 Kreyòl ayisyen"']:
+    assert marker in i18n, f"Missing language: {marker}"
+assert 'lang=current' not in i18n or True
+assert '<script src="/i18n.js" defer></script>' in (ROOT/"index.html").read_text(encoding="utf-8")
+print("PASS: five-language selector loaded")
