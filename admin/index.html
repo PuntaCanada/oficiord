@@ -1,0 +1,46 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>OficioRD · Moderación privada</title><style>
+:root{font-family:system-ui,sans-serif;color:#173045;background:#f2f6fa}body{margin:0}main{max-width:950px;margin:40px auto;padding:20px}h1{font-size:28px}.panel,.entry{background:white;border:1px solid #dce5ec;border-radius:14px;padding:20px;margin:14px 0}label{display:block;font-weight:600;margin-bottom:8px}input,select{padding:12px;border:1px solid #aab9c3;border-radius:8px;width:100%;max-width:470px;font:inherit}button{background:#124d68;color:white;border:0;border-radius:8px;padding:11px 15px;font-weight:700;cursor:pointer}button.alt{background:#a73535}button.ghost{background:#e7eef3;color:#21394a}button:disabled{opacity:.6}small{color:#586b7b}.actions{display:flex;gap:10px;flex-wrap:wrap}p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}.note{background:#fff6de;border-left:4px solid #c79122;padding:14px}.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.row>div{flex:1}.muted{color:#5a6c7a}</style></head><body><main>
+<h1>🔒 OficioRD · Moderación</h1><p class="muted">Panel de revisión para administradores. No admite registros nuevos ni activa la publicación automática.</p>
+<div class="note">Verifica personalmente las solicitudes antes de aprobarlas. No publiques números de teléfono, direcciones, datos personales, anuncios fraudulentos ni información de terceros sin permiso. El acceso requiere una clave administrativa configurada en Cloudflare.</div>
+<section class="panel"><label for="token">Clave privada de administración (no se guarda en el navegador)</label><input id="token" type="password" autocomplete="off" minlength="32" placeholder="Introducir clave privada"><p><small>La clave solo permanece en memoria mientras esta pestaña esté abierta. No debe enviarse por chat, correo ni quedar en GitHub.</small></p><div class="row"><div><label for="filter">Estado</label><select id="filter"><option value="pending">Pendientes</option><option value="approved">Aprobadas</option><option value="rejected">Rechazadas</option></select></div><button id="load">Cargar solicitudes</button><button id="clear" class="ghost">Cerrar sesión</button></div><p id="message" role="status"></p></section>
+<section id="results" aria-live="polite"></section>
+</main><script>
+const $=id=>document.getElementById(id);let secret='';
+function message(s){$('message').textContent=s}
+async function call(method,path,body){
+ const r=await fetch(path,{method,headers:{authorization:'Bearer '+secret,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store',credentials:'omit'});
+ const d=await r.json().catch(()=>({error:'INVALID_RESPONSE'}));
+ if(!r.ok)throw Error(d.error||'REQUEST_FAILED');
+ return d;
+}
+function element(tag,value){const n=document.createElement(tag);n.textContent=value??'';return n}
+async function load(){
+ const input=$('token').value.trim();if(input)secret=input;
+ if(!secret){message('Introduce la clave de administración.');return}
+ $('token').value='';$('results').replaceChildren();message('Cargando…');
+ try{
+  const filter=$('filter').value;
+  const d=await call('GET','/api/admin/submissions?status='+encodeURIComponent(filter));
+  const items=d.items||[];
+  message(items.length+' solicitud(es) · '+filter);
+  if(!items.length){$('results').append(element('p','No hay solicitudes en este estado.'));return}
+  for(const item of items){
+   const card=document.createElement('article');card.className='entry';
+   card.append(element('h2',item.title),element('small',item.city+' · '+item.category+' · '+item.kind+' · '+item.created_at));
+   card.append(element('p',item.description));
+   if(filter==='pending'){
+    const buttons=document.createElement('div');buttons.className='actions';
+    for(const [status,title,cls] of [['approved','Aprobar',''],['rejected','Rechazar','alt']]){
+     const btn=element('button',title);btn.className=cls;
+     btn.onclick=async()=>{if(!confirm('¿Confirmas '+title.toLowerCase()+' esta solicitud?'))return;btn.disabled=true;try{await call('POST','/api/admin/submissions',{id:item.id,status});await load()}catch(e){message(e.message);btn.disabled=false}};
+     buttons.append(btn);
+    }
+    card.append(buttons);
+   }
+   $('results').append(card);
+  }
+ }catch(e){message('No se pudo acceder: '+e.message+'. Comprueba la clave y la configuración.')}
+}
+$('load').onclick=load;
+$('clear').onclick=()=>{secret='';$('token').value='';$('results').replaceChildren();message('Sesión cerrada.');};
+</script></body></html>
