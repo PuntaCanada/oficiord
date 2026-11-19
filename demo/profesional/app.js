@@ -1,5 +1,6 @@
 import {providers,regions,categories,jobs,initial,activeProvider,setProvider,toggleArea,matches,listJobs,suggestedQuote,saveOffer,markSimulated,discardOffer,openThread,mockReply} from './state.mjs';
 const $=id=>document.getElementById(id);
+const sharedCopy={"es":["Recorrido compartido cliente y profesional","La misma solicitud, oferta y conversación ficticia desde ambas perspectivas.","Explorar recorrido →"],"en":["Shared customer–professional walkthrough","One fictional request, quote and conversation from both perspectives.","Explore journey →"],"de":["Gemeinsamer Kunden-Handwerker-Ablauf","Derselbe fiktive Auftrag, dasselbe Angebot und derselbe Dialog aus beiden Perspektiven.","Gemeinsame Demo öffnen →"],"fr":["Parcours commun client–artisan","La même demande, le même devis et la même conversation fictive des deux côtés.","Explorer le parcours →"],"ht":["Menm parcours kliyan ak pwofesyonèl","Menm demann, òf ak mesaj envante nan de pespektiv yo.","Gade parcours la →"]};
 const categoriesText={
 es:{ac:'Aire acondicionado',plumbing:'Plomería',electric:'Electricidad',clean:'Limpieza',paint:'Pintura',appliance:'Electrodomésticos'},
 en:{ac:'Air conditioning',plumbing:'Plumbing',electric:'Electricity',clean:'Cleaning',paint:'Painting',appliance:'Appliances'},
@@ -28,6 +29,11 @@ function refill(select,values,current){
 }
 function render(){
  const t=labels[lang],p=activeProvider(state);
+ const copy=sharedCopy[lang];
+ $('shared-title').textContent=copy[0];
+ $('shared-subtitle').textContent=copy[1];
+ $('shared-link').textContent=copy[2];
+ $('shared-link').href='/demo/recorrido/?lang='+lang;
  document.documentElement.lang=lang;
  const names={eyebrow:t.eyebrow,headline:t.headline,intro:t.intro,warning:t.warning,back:t.back,'more-label':t.more,
   'profile-heading':t.profileHeading,'profile-select-label':t.profileSelect,'areas-heading':t.areasHeading,'areas-note':t.areasNote,
