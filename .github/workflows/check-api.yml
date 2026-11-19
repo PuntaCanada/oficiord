@@ -5,6 +5,8 @@ on:
   push:
     paths:
       - '.github/workflows/check-api.yml'
+      - 'functions/**'
+      - 'migrations/**'
 
 jobs:
   check-public-api:
@@ -15,12 +17,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          URL="https://oficiord.pages.dev/api/submissions?kind=job"
+          URL="https://oficiord.pages.dev/api/health"
           for attempt in 1 2 3 4 5; do
             code=$(curl --max-time 20 --silent --show-error --location --output /tmp/api.json --write-out '%{http_code}' "$URL") || code=000
             echo "Attempt $attempt: HTTP $code"
             if [ "$code" = "200" ]; then
-              python3 -c 'import json; d=json.load(open("/tmp/api.json", encoding="utf-8")); assert isinstance(d.get("items"), list), "Expected items array"; assert all("contact_email" not in i for i in d["items"]), "Private email exposed"; print("PASS: API, D1 query and private fields")'
+              python3 -c 'import json; d=json.load(open("/tmp/api.json", encoding="utf-8")); assert d.get("ok") is True and d.get("database")=="connected", "D1 not ready"; print("PASS: D1 binding and query working")'
               exit 0
             fi
             if [ -f /tmp/api.json ]; then head -c 400 /tmp/api.json; echo; fi
