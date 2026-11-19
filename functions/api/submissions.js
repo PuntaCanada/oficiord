@@ -14,6 +14,7 @@ export async function onRequestGet({env,request}){
  }catch{return send({error:'SERVER_ERROR'},500);}
 }
 export async function onRequestPost({env,request}){
+ if(env.SUBMISSIONS_ENABLED!=='true')return send({error:'SUBMISSIONS_NOT_ENABLED'},503);
  if(!env.DB)return send({error:'DATABASE_NOT_CONFIGURED'},503);
  if(!env.TURNSTILE_SECRET||!env.TURNSTILE_SITE_KEY)return send({error:'ANTI_SPAM_NOT_CONFIGURED'},503);
  if(Number(request.headers.get('content-length')||0)>12000)return send({error:'TOO_LARGE'},413);
