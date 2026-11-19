@@ -45,7 +45,9 @@ class Scripts(HTMLParser):
         self.inside = False
         self.scripts = []
     def handle_starttag(self, tag, attrs):
-        if tag == "script" and not dict(attrs).get("src"):
+        # Structured JSON-LD is data, not executable JavaScript. Keep checking
+        # every actual inline JS block instead of feeding JSON to node --check.
+        if tag == "script" and not dict(attrs).get("src") and dict(attrs).get("type", "text/javascript") in ("text/javascript", "module", "application/javascript"):
             self.inside = True
             self.scripts.append("")
     def handle_endtag(self, tag):
