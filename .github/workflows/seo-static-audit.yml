@@ -1,0 +1,47 @@
+name: OficioRD static SEO and indexability audit
+on:
+  push:
+    branches: [main, 'feature/**']
+    paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'de/index.html'
+      - 'fr/index.html'
+      - 'ht/index.html'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '_headers'
+      - 'demo/index.html'
+      - 'account/index.html'
+      - 'tests/seo-static-audit.py'
+      - '.github/workflows/seo-static-audit.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'de/index.html'
+      - 'fr/index.html'
+      - 'ht/index.html'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '_headers'
+      - 'tests/seo-static-audit.py'
+      - '.github/workflows/seo-static-audit.yml'
+permissions:
+  contents: read
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify search indexability, sitemap and noindex safety offline
+        run: python3 tests/seo-static-audit.py
+      - name: Probe public Cloudflare Pages production host (diagnostic, not a deployment gate)
+        continue-on-error: true
+        run: |
+          echo "Checking production URL and crawler files; this is not proof of the pull-request deployment."
+          for path in / /robots.txt /sitemap.xml; do
+            echo "URL: https://oficiord.pages.dev${path}"
+            curl --location --show-error --silent --max-time 12 --output /dev/null --write-out 'HTTP %{http_code} | remote IP %{remote_ip} | final URL %{url_effective}\\n' "https://oficiord.pages.dev${path}" || exit 1
+          done
