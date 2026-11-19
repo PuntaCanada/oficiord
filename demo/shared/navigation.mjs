@@ -22,8 +22,11 @@ if(root){
  const inner=document.createElement('div');inner.className='od-demo-nav-inner';
  const heading=document.createElement('span');heading.className='od-demo-nav-label';
  const scroll=document.createElement('div');scroll.className='od-demo-nav-scroll';
+ scroll.setAttribute('role','group');
+ scroll.setAttribute('tabindex','0');
  nav.append(inner);inner.append(heading,scroll);root.replaceChildren(nav);
- const current=pages.find(p=>p.path===location.pathname)?.key||'explore';
+ const normalizedPath=location.pathname.replace(/\\/+/g,'/').replace(/\\/?$/,'/');
+ const current=pages.find(p=>p.path===normalizedPath)?.key||'explore';
  function language(){
   const code=new URLSearchParams(location.search).get('lang');
   return Object.hasOwn(labels,code)?code:Object.hasOwn(labels,document.documentElement.lang)?document.documentElement.lang:'es';
@@ -31,6 +34,7 @@ if(root){
  function render(){
   const lang=language(),t=labels[lang];
   heading.textContent=t.heading;nav.setAttribute('aria-label',t.heading);
+  scroll.setAttribute('aria-label',t.heading);
   scroll.replaceChildren(...pages.map(item=>{
    const a=document.createElement('a');a.className='od-demo-nav-link';a.href=item.path+'?lang='+lang;
    a.textContent=t[item.key];if(item.key===current)a.setAttribute('aria-current','page');
@@ -38,6 +42,8 @@ if(root){
   }));
  }
  render();
+ const activeLink=scroll.querySelector('[aria-current="page"]');
+ if(activeLink)activeLink.scrollIntoView({block:'nearest',inline:'nearest'});
  // Existing demo language selectors mutate <html lang>; the shared nav follows
  // without monkey-patching history or adding a new locale store.
  const observer=new MutationObserver(()=>render());
