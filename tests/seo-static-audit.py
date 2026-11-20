@@ -67,6 +67,19 @@ for lang, path in LANGUAGES.items():
     verify(page.count('class="od-community-intro"') == 1, f"{lang}: missing community project introduction")
     verify('class="od-community-disclaimer"' in page, f"{lang}: no honest launch status disclaimer")
     verify('class="od-public-start"' in page, f"{lang}: public launch section missing")
+    legal_path = "/legal/" if lang == "es" else f"/legal/{lang}/"
+    verify(f'href="{legal_path}"' in page, f"{lang}: legal/readiness draft not linked from homepage")
+    legal_file = ROOT / legal_path.strip("/") / "index.html"
+    verify(legal_file.exists(), f"{lang}: legal preparation page missing")
+    if legal_file.exists():
+        legal_text = legal_file.read_text(encoding="utf-8")
+        verify(f'<html lang="{lang}">' in legal_text, f"{lang}: legal page not translated")
+        verify('name="robots" content="noindex,follow"' in legal_text, f"{lang}: incomplete legal draft must not be indexed")
+        for section_id in ["operator", "contact", "privacy", "terms", "moderation"]:
+            verify(f'id="{section_id}"' in legal_text, f"{lang}: legal section {section_id} missing")
+        verify("oficiord@outlook.com" in legal_text and "soporte.oficiord@outlook.com" in legal_text, f"{lang}: existing contact addresses absent")
+        verify("MARKETPLACE_LAUNCH_APPROVED=true" not in legal_text, f"{lang}: draft claims premature launch")
+
     verify('id="listing-kind"' in page and 'value="professional"' in page, f"{lang}: professional discovery selector missing")
     verify('src="/assets/oficiord-contact.js"' in page, f"{lang}: moderated contact UI script missing")
     verify("kind:el('listing-kind').value" in page, f"{lang}: listing kind not passed to public read API")
