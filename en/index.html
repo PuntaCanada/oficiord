@@ -21,6 +21,7 @@
 <dialog id="dialog"><div class="modal"><button class="close" id="close" aria-label="Cerrar">×</button><h2 id="form-title">Nueva solicitud</h2><p class="small">Durante la etapa piloto, toda solicitud requiere revisión antes de publicarse.</p><form id="form"><div class="field"><label for="title">Título</label><input id="title" required minlength="5" maxlength="80"></div><div class="field"><label for="f-city">Zona</label><select id="f-city" required></select></div><div class="field"><label for="f-category">Categoría</label><select id="f-category" required></select></div><div class="field"><label for="description">Descripción (sin teléfonos ni direcciones)</label><textarea id="description" minlength="10" maxlength="800" required></textarea></div><div class="field"><label for="email">Correo electrónico (privado)</label><input id="email" type="email" maxlength="254" required></div><div style="position:absolute;left:-10000px" aria-hidden="true"><label>Website<input id="website" tabindex="-1" autocomplete="off"></label></div><div class="field"><label><input id="consent" type="checkbox" required style="width:auto"> Acepto el tratamiento de mis datos para gestionar esta solicitud.</label></div><div id="captcha"></div><button id="send" type="submit" style="margin-top:14px">Enviar para revisión</button></form><div id="status" class="status" role="status"></div></div></dialog>
 <dialog id="report-dialog"><div class="modal"><button class="close" id="report-close" aria-label="Cerrar">×</button><h2>Reportar un anuncio</h2><p class="small">Las denuncias son revisadas por una persona. No compartas datos personales en la descripción.</p><form id="report-form"><div class="field"><label for="report-reason">Motivo</label><select id="report-reason" required><option value="spam">Spam o publicidad</option><option value="fraud">Posible estafa</option><option value="inappropriate">Contenido inapropiado</option><option value="privacy">Datos personales expuestos</option><option value="other">Otro problema</option></select></div><div class="field"><label for="report-details">Detalles (opcional)</label><textarea id="report-details" maxlength="1000" placeholder="Describe el problema sin incluir nombres, teléfonos ni direcciones"></textarea></div><label class="small"><input type="checkbox" id="report-consent" style="width:auto" required> Entiendo que la información será revisada para gestionar mi reporte.</label><div id="report-captcha"></div><button type="submit" id="report-submit" disabled>Enviar reporte</button><p role="status" id="report-status"></p></form></div></dialog>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script src="/assets/oficiord-contact.js"></script>
 <script>
 const cities=['Higüey','Bávaro','Punta Cana','La Romana','Santo Domingo','Santiago','Otras zonas'];
 const categories=[['🔧','Plomería','Fugas y tuberías'],['⚡','Electricidad','Instalaciones y reparaciones'],['❄️','Aire acondicionado','Instalación y mantenimiento'],['🧺','Reparación de electrodomésticos','Neveras, lavadoras y más'],['🎨','Pintura','Paredes y fachadas'],['🧹','Limpieza','Hogares y alojamientos'],['🪚','Carpintería','Muebles y reparaciones'],['🏠','Otros','Servicios adicionales']];
@@ -49,6 +50,7 @@ async function jobs(){
   const data=await r.json();
   if(!Array.isArray(data.items)||!data.items.length){showBoardEmpty('empty');return;}
   root.replaceChildren();
+  const contactReady=window.oficioContact?await window.oficioContact.ready():false;
   for(const item of data.items){
    const article=document.createElement('article');article.className='job';
    const h=document.createElement('h3');h.textContent=item.title;
@@ -57,7 +59,7 @@ async function jobs(){
    article.append(h,m,p);
    const reportButton=document.createElement('button');reportButton.className='reportbtn';reportButton.type='button';
    reportButton.textContent="Report listing";
-   reportButton.onclick=()=>openReport(item.id);article.append(reportButton);root.append(article);
+   reportButton.onclick=()=>openReport(item.id);article.append(reportButton);if(contactReady)window.oficioContact.attach(article,item.id);root.append(article);
   }
  }catch{
   showBoardEmpty('error');
