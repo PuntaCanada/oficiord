@@ -63,6 +63,23 @@ try{
     assert.equal(await page.locator('#form').isVisible(),false,'No personal information form while closed');
     checks+=3;
    }
+   if(width===390&&lang==='es'){
+    // A synthetic, approved listing can receive a moderated enquiry without exposing email publicly.
+    await page.route('**/api/config',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({submissionsEnabled:false,contactRequestsEnabled:true,turnstileSiteKey:'mock-site-key'})}));
+    await page.route('**/api/submissions?*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+     items:[{id:'a1234567-1234-4234-9234-123456789012',title:'Prueba de mantenimiento',city:'Higüey',category:'Plomería',description:'Entrada ficticia para prueba segura.'}]
+    })}));
+    await page.locator('#find').click();
+    const btn=page.locator('.od-contact-button');
+    await btn.waitFor();
+    assert.equal(await page.locator('#jobs').innerText().then(s=>s.includes('person@example.org')),false,'No private email on public board');
+    await btn.click();
+    assert.equal(await page.locator('.od-contact-dialog[open]').count(),1,'Contact dialogue opens for approved listing');
+    assert.equal(await page.locator('.od-contact-form input[type="email"]').count(),1,'One contact email field');
+    assert.equal(await page.locator('.od-contact-consent input[type="checkbox"]').count(),1,'Consent required');
+    assert.ok(apiRequests.every(x=>x.method==='GET'),'No real writes during contact browsing');
+    checks+=4;
+   }
    await page.close();checks++;
   }
   await context.close();
