@@ -65,7 +65,12 @@ for lang, path in LANGUAGES.items():
     if not html.exists(): continue
     page = html.read_text(encoding="utf-8")
     verify(page.count('class="od-community-intro"') == 1, f"{lang}: missing community project introduction")
-    verify('class="od-community-disclaimer"' in page, f"{lang}: no clear fictional demo disclaimer")
+    verify('class="od-community-disclaimer"' in page, f"{lang}: no honest launch status disclaimer")
+    verify('class="od-public-start"' in page, f"{lang}: public launch section missing")
+    verify('href="#trabajos"' in page and 'href="#categorias"' in page, f"{lang}: genuine listing navigation missing")
+    verify('<section class="od-journey"' not in page and '<section class="od-find"' not in page, f"{lang}: fictional demo still promoted on public homepage")
+    verify('class="navlink" href="/demo/' not in page and 'class="navlink" href="/account/' not in page, f"{lang}: demo/account promoted in main navigation")
+    verify("el('form').hidden=!(enabled&&sitekey)" in page, f"{lang}: private form not gated behind readiness")
     verify('id="od-community-heading"' in page, f"{lang}: announcement missing accessible heading")
     verify('href="/assets/oficiord-home-journey.css"' in page, f"{lang}: shared announcement stylesheet missing")
 
