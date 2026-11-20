@@ -80,6 +80,20 @@ try{
     assert.ok(apiRequests.every(x=>x.method==='GET'),'No real writes during contact browsing');
     checks+=4;
    }
+   // Test the actual five legal preparation pages in real headless Chrome.
+   const legalPath=lang==='es'?'/legal/':'/legal/'+lang+'/';
+   const draft=await context.newPage();
+   const draftErrors=[];draft.on('pageerror',e=>draftErrors.push(e.message));
+   const draftResponse=await draft.goto(base+legalPath,{waitUntil:'domcontentloaded',timeout:18000});
+   assert.equal(draftResponse.status(),200,'legal page '+legalPath);
+   assert.equal(await draft.locator('html').getAttribute('lang'),lang,'legal language '+lang);
+   assert.equal(await draft.locator('meta[name="robots"]').getAttribute('content'),'noindex,follow','unfinished policy noindex');
+   for(const id of ['operator','contact','privacy','terms','moderation'])assert.equal(await draft.locator('#'+id).count(),1,'legal section '+id);
+   const legalWidth=await draft.evaluate(()=>({window:innerWidth,scroll:document.documentElement.scrollWidth}));
+   assert.ok(legalWidth.scroll<=legalWidth.window+2,'legal responsive overflow '+lang+' '+JSON.stringify(legalWidth));
+   assert.deepEqual(draftErrors,[],'legal Javascript errors '+lang);
+   assert.equal(await page.locator('footer a[href="'+legalPath+'"]').count(),1,'footer legal navigation '+lang);
+   await draft.close();checks+=3;
    await page.close();checks++;
   }
   await context.close();
