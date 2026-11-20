@@ -1,0 +1,33 @@
+name: OficioRD no-account contact and launch gates
+on:
+  push:
+    branches: [main, 'feature/**']
+    paths:
+      - 'functions/api/config.js'
+      - 'functions/api/submissions.js'
+      - 'functions/api/contact-requests.js'
+      - 'functions/api/admin/contact-requests.js'
+      - 'admin/index.html'
+      - 'migrations/0003_contact_requests.sql'
+      - 'tests/contact-system.mjs'
+      - '.github/workflows/contact-system.yml'
+  pull_request:
+    paths:
+      - 'functions/api/**'
+      - 'admin/index.html'
+      - 'migrations/0003_contact_requests.sql'
+      - 'tests/contact-system.mjs'
+      - '.github/workflows/contact-system.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline API and privacy contracts
+        run: node tests/contact-system.mjs
