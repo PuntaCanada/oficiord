@@ -4,7 +4,7 @@ const reply=(payload,status=200)=>Response.json(payload,{status,headers:HEADERS}
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const validEmail=s=>typeof s==='string'&&s.length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 export async function onRequestPost({env,request}){
- if(env.MARKETPLACE_LAUNCH_APPROVED!=='true'||env.CONTACT_REQUESTS_ENABLED!=='true')
+ if(env.MARKETPLACE_LAUNCH_APPROVED!=='true'||env.LEGAL_READINESS_CONFIRMED!=='true'||env.CONTACT_REQUESTS_ENABLED!=='true')
   return reply({error:'CONTACT_NOT_ENABLED'},503);
  if(!env.DB||!env.TURNSTILE_SECRET||!env.TURNSTILE_SITE_KEY||!env.MODERATION_ADMIN_KEY||env.MODERATION_ADMIN_KEY.length<32)
   return reply({error:'CONTACT_NOT_CONFIGURED'},503);
