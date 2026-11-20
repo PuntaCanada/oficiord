@@ -2,7 +2,7 @@
 :root{font-family:system-ui,sans-serif;color:#173045;background:#f2f6fa}body{margin:0}main{max-width:950px;margin:40px auto;padding:20px}h1{font-size:28px}.panel,.entry{background:white;border:1px solid #dce5ec;border-radius:14px;padding:20px;margin:14px 0}label{display:block;font-weight:600;margin-bottom:8px}input,select{padding:12px;border:1px solid #aab9c3;border-radius:8px;width:100%;max-width:470px;font:inherit}button{background:#124d68;color:white;border:0;border-radius:8px;padding:11px 15px;font-weight:700;cursor:pointer}button.alt{background:#a73535}button.ghost{background:#e7eef3;color:#21394a}button:disabled{opacity:.6}small{color:#586b7b}.actions{display:flex;gap:10px;flex-wrap:wrap}p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}.note{background:#fff6de;border-left:4px solid #c79122;padding:14px}.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.row>div{flex:1}.muted{color:#5a6c7a}</style></head><body><main>
 <h1>🔒 OficioRD · Moderación</h1><p class="muted">Panel de revisión para administradores. No admite registros nuevos ni activa la publicación automática.</p>
 <div class="note">Verifica personalmente las solicitudes antes de aprobarlas. No publiques números de teléfono, direcciones, datos personales, anuncios fraudulentos ni información de terceros sin permiso. El acceso requiere una clave administrativa configurada en Cloudflare.</div>
-<section class="panel"><label for="token">Clave privada de administración (no se guarda en el navegador)</label><input id="token" type="password" autocomplete="off" minlength="32" placeholder="Introducir clave privada"><p><small>La clave solo permanece en memoria mientras esta pestaña esté abierta. No debe enviarse por chat, correo ni quedar en GitHub.</small></p><div class="row"><div><label for="view">Bandeja</label><select id="view"><option value="submissions">Solicitudes</option><option value="reports">Denuncias</option></select></div><div><label for="filter">Estado</label><select id="filter"><option value="pending">Pendientes</option><option value="approved">Aprobadas</option><option value="rejected">Rechazadas</option></select></div><button id="load">Cargar solicitudes</button><button id="clear" class="ghost">Cerrar sesión</button></div><p id="message" role="status"></p></section>
+<section class="panel"><label for="token">Clave privada de administración (no se guarda en el navegador)</label><input id="token" type="password" autocomplete="off" minlength="32" placeholder="Introducir clave privada"><p><small>La clave solo permanece en memoria mientras esta pestaña esté abierta. No debe enviarse por chat, correo ni quedar en GitHub.</small></p><div class="row"><div><label for="view">Bandeja</label><select id="view"><option value="submissions">Solicitudes</option><option value="reports">Denuncias</option><option value="contacts">Contactos (revisión manual)</option></select></div><div><label for="filter">Estado</label><select id="filter"><option value="pending">Pendientes</option><option value="approved">Aprobadas</option><option value="rejected">Rechazadas</option></select></div><button id="load">Cargar solicitudes</button><button id="clear" class="ghost">Cerrar sesión</button></div><p id="message" role="status"></p></section>
 <section id="results" aria-live="polite"></section>
 </main><script>
 const $=id=>document.getElementById(id);let secret='';
@@ -14,6 +14,45 @@ async function call(method,path,body){
  return d;
 }
 function element(tag,value){const n=document.createElement(tag);n.textContent=value??'';return n}
+async function loadContacts(){
+ $('results').replaceChildren();message('Cargando solicitudes de contacto…');
+ const filter=$('filter').value;
+ if(!['pending','handled','rejected'].includes(filter)){message('Selecciona un estado válido.');return}
+ try{
+  const d=await call('GET','/api/admin/contact-requests?status='+encodeURIComponent(filter));
+  message((d.items||[]).length+' contacto(s) · '+filter);
+  if(!d.items?.length){$('results').append(element('p','No hay contactos en este estado.'));return}
+  for(const item of d.items){
+   const card=element('article');card.className='entry';
+   card.append(element('h2',item.listing_title||'Anuncio eliminado'));
+   card.append(element('small','Estado anuncio: '+(item.listing_status||'eliminado')+' · '+item.created_at));
+   card.append(element('p','Correo del solicitante (privado): '+item.sender_email));
+   card.append(element('p','Correo del propietario (privado): '+(item.listing_contact_email||'No disponible')));
+   card.append(element('p',item.message));
+   const note=element('small','Solo después de revisar identidad, consentimiento y contenido, reenvía manualmente la consulta al propietario. No publiques estos correos en anuncios.');
+   card.append(note);
+   const actions=element('div');actions.className='actions';
+   if(filter==='pending'){
+    for(const [status,label] of [['handled','Consulta atendida'],['rejected','Rechazar consulta']]){
+     const btn=element('button',label);
+     btn.onclick=async()=>{if(!confirm('¿Confirmas '+label.toLowerCase()+'?'))return;btn.disabled=true;
+      try{await call('POST','/api/admin/contact-requests',{id:item.id,status});await loadContacts()}
+      catch(e){message(e.message);btn.disabled=false}};
+     actions.append(btn);
+    }
+   }
+   const del=element('button','Eliminar contacto y datos');del.className='alt';
+   del.onclick=async()=>{
+    if(!confirm('¿Eliminar IRREVERSIBLEMENTE esta consulta y su email?'))return;
+    if(prompt('Escribe ELIMINAR para confirmar:')!=='ELIMINAR')return;
+    del.disabled=true;
+    try{await call('DELETE','/api/admin/contact-requests',{id:item.id,confirm:'DELETE'});await loadContacts()}
+    catch(e){message(e.message);del.disabled=false}
+   };
+   actions.append(del);card.append(actions);$('results').append(card);
+  }
+ }catch(e){message('No se pudieron cargar los contactos: '+e.message+'. Comprueba 0003_contact_requests.sql.')}
+}
 async function loadReports(){
  $('results').replaceChildren();message('Cargando denuncias…');
  const filter=$('filter').value;
@@ -51,15 +90,18 @@ async function loadReports(){
 }
 $('view').onchange=()=>{
  const filter=$('filter');filter.replaceChildren();
- const statuses=$('view').value==='reports'?[['pending','Pendientes'],['reviewed','Revisadas'],['dismissed','Descartadas']]:[['pending','Pendientes'],['approved','Aprobadas'],['rejected','Rechazadas']];
+ const view=$('view').value;
+ const statuses=view==='reports'?[['pending','Pendientes'],['reviewed','Revisadas'],['dismissed','Descartadas']]:
+  view==='contacts'?[['pending','Pendientes'],['handled','Atendidas'],['rejected','Rechazadas']]:
+  [['pending','Pendientes'],['approved','Aprobadas'],['rejected','Rechazadas']];
  for(const [value,label] of statuses)filter.add(new Option(label,value));
- $('load').textContent=$('view').value==='reports'?'Cargar denuncias':'Cargar solicitudes';
+ $('load').textContent=view==='reports'?'Cargar denuncias':view==='contacts'?'Cargar contactos':'Cargar solicitudes';
  $('results').replaceChildren();message('Selecciona '+$('load').textContent+'.');
 };
 async function load(){
  const input=$('token').value.trim();if(input)secret=input;
  if(!secret){message('Introduce la clave de administración.');return}
- $('token').value='';if($('view').value==='reports')return loadReports();$('results').replaceChildren();message('Cargando…');
+ $('token').value='';if($('view').value==='reports')return loadReports();if($('view').value==='contacts')return loadContacts();$('results').replaceChildren();message('Cargando…');
  try{
   const filter=$('filter').value;
   const d=await call('GET','/api/admin/submissions?status='+encodeURIComponent(filter));
