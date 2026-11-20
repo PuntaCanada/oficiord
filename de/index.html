@@ -31,14 +31,12 @@ for(const [,name] of categories){for(const id of ['category','f-category'])el(id
 el('f-category').insertBefore(new Option('Selecciona un servicio',''),el('f-category').firstChild);el('f-category').value='';
 el('categories').replaceChildren(...categories.map(([emoji,name,desc])=>{const card=document.createElement('article');card.className='card';const icon=document.createElement('div');icon.className='emoji';icon.textContent=emoji;const photoFor={'Plomería':'plumbing','Electricidad':'electric','Aire acondicionado':'hvac','Reparación de electrodomésticos':'appliances','Limpieza':'cleaning'}[name];if(photoFor){const img=document.createElement('img');img.className='category-photo';img.src='/assets/oficiord-'+photoFor+'.webp';img.alt=name;img.loading='lazy';img.decoding='async';card.classList.add('has-photo');card.append(img);}const title=document.createElement('h3');title.textContent=name;const text=document.createElement('p');text.textContent=desc;card.append(icon,title,text);return card;}));
 function showBoardEmpty(kind){
- const copy={"none":"Für diese Filter gibt es noch keine freigegebenen Aufträge.","error":"Die Auftragsübersicht ist derzeit nicht verfügbar. Echte Anfragen bleiben in der Pilotphase gesperrt.","label":"Bis dahin kannst du vollständig fiktive Beispielaufträge ansehen.","cta":"Beispielaufträge entdecken","lang":"de"};
  const root=el('jobs');root.replaceChildren();
  const box=document.createElement('div');box.className='empty od-board-empty';
- const heading=document.createElement('strong');heading.textContent=kind==='error'?copy.error:copy.none;
- const hint=document.createElement('p');hint.textContent=copy.label;
- const action=document.createElement('a');action.className='od-board-action';action.href='/demo/?lang='+copy.lang;
- action.textContent=copy.cta;
- box.append(heading,hint,action);root.append(box);
+ const heading=document.createElement('strong');heading.textContent=kind==='error'?"Veröffentlichte Einträge sind echt und werden geprüft. Falls noch nichts angezeigt wird, schau später wieder vorbei.":"Veröffentlichte Einträge sind echt und werden geprüft. Falls noch nichts angezeigt wird, schau später wieder vorbei.";
+ const action=document.createElement('a');action.className='od-board-action';action.href='#categorias';
+ action.textContent="Dienstleistungen ansehen";
+ box.append(heading,action);root.append(box);
 }
 async function jobs(){
  const root=el('jobs');root.setAttribute('aria-busy','true');
@@ -104,7 +102,6 @@ async function openForm(k){
  el('status').textContent='Comprobando disponibilidad…';
  el('form').reset();
  el('send').disabled=true;
- el('dialog').showModal();
  let enabled=false;
  try{
   const r=await fetch('/api/config',{cache:'no-store'});
@@ -113,9 +110,10 @@ async function openForm(k){
   enabled=d.submissionsEnabled===true;
   sitekey=enabled?d.turnstileSiteKey:null;
  }catch{}
- if(!el('dialog').open)return;
+ el('form').hidden=!(enabled&&sitekey);
+ el('dialog').showModal();
  if(!enabled||!sitekey){
-  el('status').textContent='Registro temporalmente cerrado durante la preparación legal y de seguridad. No envíes datos personales todavía.';
+  el('status').textContent="Neue Einträge können derzeit noch nicht eingereicht werden. Datenschutz und Sicherheit werden vorbereitet. Bitte gib noch keine personenbezogenen Daten ein.";
   return;
  }
  el('status').textContent='Preparando verificación de seguridad…';
