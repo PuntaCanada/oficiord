@@ -31,14 +31,12 @@ for(const [,name] of categories){for(const id of ['category','f-category'])el(id
 el('f-category').insertBefore(new Option('Selecciona un servicio',''),el('f-category').firstChild);el('f-category').value='';
 el('categories').replaceChildren(...categories.map(([emoji,name,desc])=>{const card=document.createElement('article');card.className='card';const icon=document.createElement('div');icon.className='emoji';icon.textContent=emoji;const photoFor={'Plomería':'plumbing','Electricidad':'electric','Aire acondicionado':'hvac','Reparación de electrodomésticos':'appliances','Limpieza':'cleaning'}[name];if(photoFor){const img=document.createElement('img');img.className='category-photo';img.src='/assets/oficiord-'+photoFor+'.webp';img.alt=name;img.loading='lazy';img.decoding='async';card.classList.add('has-photo');card.append(img);}const title=document.createElement('h3');title.textContent=name;const text=document.createElement('p');text.textContent=desc;card.append(icon,title,text);return card;}));
 function showBoardEmpty(kind){
- const copy={"none":"Pa gen travay apwouve ki matche ak filtè sa yo.","error":"Lis travay la pa disponib. Nou poko aksepte demann reyèl pandan pilòt la.","label":"Pandanstan, gade kèk travay egzanp ki envante.","cta":"Gade travay egzanp","lang":"ht"};
  const root=el('jobs');root.replaceChildren();
  const box=document.createElement('div');box.className='empty od-board-empty';
- const heading=document.createElement('strong');heading.textContent=kind==='error'?copy.error:copy.none;
- const hint=document.createElement('p');hint.textContent=copy.label;
- const action=document.createElement('a');action.className='od-board-action';action.href='/demo/?lang='+copy.lang;
- action.textContent=copy.cta;
- box.append(heading,hint,action);root.append(box);
+ const heading=document.createElement('strong');heading.textContent=kind==='error'?"Anons ki pibliye yo pral reyèl epi verifye. Si pa gen okenn, tounen pita.":"Anons ki pibliye yo pral reyèl epi verifye. Si pa gen okenn, tounen pita.";
+ const action=document.createElement('a');action.className='od-board-action';action.href='#categorias';
+ action.textContent="Gade sèvis yo";
+ box.append(heading,action);root.append(box);
 }
 async function jobs(){
  const root=el('jobs');root.setAttribute('aria-busy','true');
@@ -104,7 +102,6 @@ async function openForm(k){
  el('status').textContent='Comprobando disponibilidad…';
  el('form').reset();
  el('send').disabled=true;
- el('dialog').showModal();
  let enabled=false;
  try{
   const r=await fetch('/api/config',{cache:'no-store'});
@@ -113,9 +110,10 @@ async function openForm(k){
   enabled=d.submissionsEnabled===true;
   sitekey=enabled?d.turnstileSiteKey:null;
  }catch{}
- if(!el('dialog').open)return;
+ el('form').hidden=!(enabled&&sitekey);
+ el('dialog').showModal();
  if(!enabled||!sitekey){
-  el('status').textContent='Registro temporalmente cerrado durante la preparación legal y de seguridad. No envíes datos personales todavía.';
+  el('status').textContent="Nou poko louvri soumèt nouvo anons. Nou ap fini kontwòl sekirite ak pwoteksyon done yo. Pa bay enfòmasyon pèsonèl pou kounye a.";
   return;
  }
  el('status').textContent='Preparando verificación de seguridad…';
