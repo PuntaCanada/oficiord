@@ -11,11 +11,12 @@ const flags={MARKETPLACE_LAUNCH_APPROVED:'true',LEGAL_READINESS_CONFIRMED:'true'
  CONTACT_REQUESTS_ENABLED:'true',TURNSTILE_SITE_KEY:'test-public-key',TURNSTILE_SECRET:'test-not-production-secret',
  MODERATION_ADMIN_KEY:adminSecret};
 const saved=[];
-const db={prepare(query){return {bind(...values){return {
- async first(){if(query.includes('FROM submissions'))return {id:uuid};if(query.includes('FROM contact_rate_limits'))return null;return null},
- async run(){if(query.startsWith('INSERT INTO contact_requests'))saved.push(values);return {meta:{changes:1}}},
+const db={prepare(query){const statement={
+ bind(...values){return {...statement,values}},
+ async first(){if(query.includes('FROM submissions'))return {id:uuid};return null},
+ async run(){if(query.startsWith('INSERT INTO contact_requests'))saved.push(this.values);return {meta:{changes:1}}},
  async all(){return {results:[{id:uuid,listing_title:'Example placeholder',sender_email:'person@example.org',listing_contact_email:'owner@example.org'}]}}
-}}}}};
+};return statement}};
 const env={...flags,DB:db};
 const request=(body,headers={})=>new Request('https://oficiord.pages.dev/api/contact-requests',{
  method:'POST',headers:{'content-type':'application/json','origin':'https://oficiord.pages.dev',...headers},body:JSON.stringify(body)});
