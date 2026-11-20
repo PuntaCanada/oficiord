@@ -64,6 +64,11 @@ for lang, path in LANGUAGES.items():
     verify(html.exists(), f"{lang}: missing homepage")
     if not html.exists(): continue
     page = html.read_text(encoding="utf-8")
+    verify(page.count('class="od-community-intro"') == 1, f"{lang}: missing community project introduction")
+    verify('class="od-community-disclaimer"' in page, f"{lang}: no clear fictional demo disclaimer")
+    verify('id="od-community-heading"' in page, f"{lang}: announcement missing accessible heading")
+    verify('href="/assets/oficiord-home-journey.css"' in page, f"{lang}: shared announcement stylesheet missing")
+
     parsed = Head()
     parsed.feed(page)
     verify(parsed.lang == lang, f"{lang}: html lang mismatch")
