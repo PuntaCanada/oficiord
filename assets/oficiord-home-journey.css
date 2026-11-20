@@ -61,3 +61,22 @@
 .od-community-panel .od-community-disclaimer{font-size:14px;color:#385768;background:#f2f8fa;border:1px solid #d3e5ed;border-radius:9px;padding:11px 14px;margin:15px 0 0}
 @media(max-width:600px){.od-community-intro{padding:13px 0}.od-community-panel{padding:17px 15px}.od-community-panel p{font-size:15px}.od-community-panel .od-community-disclaimer{font-size:14px}}
 @media(prefers-contrast:more){.od-community-panel{border:2px solid currentColor}.od-community-panel .od-community-disclaimer{border:2px solid currentColor}}
+
+/* Public, free launch section. No fictional profiles or sign-up prompts on production homepages. */
+.od-public-start{padding:28px 0;background:#f3f8fa}
+.od-public-start-panel{padding:26px 30px;background:#fff;border:1px solid #d0e5eb;border-radius:15px;box-shadow:0 4px 18px #152c4010}
+.od-public-start-panel h2{font-size:clamp(24px,3vw,30px);color:#143c55;margin:0 0 9px}
+.od-public-start-panel p{font-size:16px;line-height:1.65;color:#294b5e;margin:0 0 20px}
+.od-public-actions{display:flex;gap:12px;flex-wrap:wrap}
+.od-public-actions a{display:inline-flex;align-items:center;min-height:46px;padding:11px 17px;border-radius:9px;font-weight:750;text-decoration:none;color:#fff;background:#185770}
+.od-public-actions a+ a{background:#e8f2f7;color:#174762;border:1px solid #b9d2de}
+.od-public-actions a:focus-visible{outline:3px solid #e68b25;outline-offset:2px}
+.od-board-empty .od-board-action{display:inline-flex;margin-top:12px}
+@media(max-width:600px){.od-public-start{padding:15px 0}.od-public-start-panel{padding:19px 16px}.od-public-actions a{width:100%;justify-content:center}}
+
+/* Keep longer localized public navigation from overflowing mid-sized tablets. */
+@media(max-width:900px){
+ header nav{display:flex;flex-wrap:wrap;justify-content:flex-start;min-width:0}
+ header nav .language-controls{order:3;width:100%;margin:4px 0 0;justify-content:flex-start;flex-wrap:wrap}
+ header nav .navlink{min-width:0;overflow-wrap:anywhere}
+}
