@@ -36,13 +36,14 @@ try{
    const res=await page.goto(base+path,{waitUntil:'networkidle',timeout:18000});
    assert.equal(res.status(),200,path);
    await page.locator('.od-board-empty .od-board-action').waitFor({timeout:7000});
-   assert.equal(await page.locator('.od-journey-card').count(),3,path+' three safe demo routes');
-   assert.equal(await page.locator('#od-journey-title').count(),1);
+   assert.equal(await page.locator('.od-journey-card').count(),0,path+' no demo-first promotion');
+   assert.equal(await page.locator('.od-public-start-panel').count(),1,path+' public launch available');
+   assert.equal(await page.locator('.od-community-disclaimer').count(),1,path+' transparent readiness message');
    assert.equal(await page.locator('#jobs').getAttribute('aria-busy'),'false',path+' loading complete');
-   assert.equal(await page.locator('.od-board-empty .od-board-action').getAttribute('href'),'/demo/?lang='+lang);
-   for(const target of ['/demo/?lang=','/demo/crear/?lang=','/demo/recorrido/?lang=']){
-    assert.equal(await page.locator('.od-journey-card[href^="'+target+'"]').count(),1,path+' CTA '+target);
-   }
+   assert.equal(await page.locator('.od-board-empty .od-board-action').getAttribute('href'),'#categorias');
+   assert.equal(await page.locator('.od-public-actions a[href="#trabajos"]').count(),1,path+' real listing CTA');
+   assert.equal(await page.locator('nav a[href^="/demo/"]').count(),0,path+' no demo navigation');
+   assert.equal(await page.locator('nav a[href^="/account/"]').count(),0,path+' no disabled account navigation');
    const size=await page.evaluate(()=>({width:innerWidth,document:document.documentElement.scrollWidth,body:document.body.scrollWidth}));
    assert.ok(size.document<=size.width+2,path+' horizontal overflow '+JSON.stringify(size));
    assert.ok(size.body<=size.width+2,path+' body overflow '+JSON.stringify(size));
@@ -56,10 +57,10 @@ try{
     await page.route('**/api/submissions?*',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"NOT_ENABLED"}'}));
     await page.locator('#find').click();
     await page.locator('.od-board-empty .od-board-action').waitFor();
-    assert.equal(await page.locator('.od-board-empty .od-board-action').getAttribute('href'),'/demo/?lang=de');
+    assert.equal(await page.locator('.od-board-empty .od-board-action').getAttribute('href'),'#categorias');
     await page.locator('.od-board-empty .od-board-action').click();
-    await page.locator('#demo-cross-navigation nav').waitFor();
-    assert.ok(page.url().endsWith('/demo/?lang=de'));
+    assert.equal(new URL(page.url()).hash,'#categorias');
+    assert.equal(await page.locator('#form').isVisible(),false,'No personal information form while closed');
     checks+=3;
    }
    await page.close();checks++;
