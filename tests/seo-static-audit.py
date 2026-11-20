@@ -69,6 +69,8 @@ for lang, path in LANGUAGES.items():
     verify('class="od-public-start"' in page, f"{lang}: public launch section missing")
     verify('class="od-safety"' in page and 'id="seguridad"' in page, f"{lang}: safety section missing")
     verify('class="od-safety-contact"' in page, f"{lang}: reporting contact status absent")
+    verify('href="mailto:oficiord@outlook.com?' in page, f"{lang}: verified OficioRD contact alias not linked")
+    verify('marc.rosemann@email.de' not in page, f"{lang}: personal email must not be published")
     verify('class="od-safety-law"' in page, f"{lang}: platform responsibilities absent")
     verify('class="od-safety-footer" href="#seguridad"' in page, f"{lang}: safety footer link missing")
     verify(page.count('<li>') >= 4, f"{lang}: safety checklist incomplete")
