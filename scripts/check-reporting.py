@@ -60,10 +60,16 @@ class Scripts(HTMLParser):
 for path in ["index.html","en/index.html","de/index.html","fr/index.html","ht/index.html","admin/index.html","demo/index.html","account/index.html","account/verify/index.html"]:
     parser=Scripts()
     parser.feed((ROOT/path).read_text(encoding="utf-8"))
-    assert parser.scripts, f"No JS script in {path}"
-    with tempfile.NamedTemporaryFile(mode="w",suffix=".js",encoding="utf-8") as temp:
-        temp.write("\n".join(parser.scripts));temp.flush()
-        subprocess.run(["node","--check",temp.name],check=True)
+    if path == "admin/index.html":
+        html = (ROOT/path).read_text(encoding="utf-8")
+        assert '<script type="module" src="/admin/admin.js"></script>' in html, "Admin module not linked"
+        for module in ["admin/admin.js", "admin/i18n.js"]:
+            subprocess.run(["node","--check",str(ROOT/module)],check=True)
+    else:
+        assert parser.scripts, f"No JS script in {path}"
+        with tempfile.NamedTemporaryFile(mode="w",suffix=".js",encoding="utf-8") as temp:
+            temp.write("\n".join(parser.scripts));temp.flush()
+            subprocess.run(["node","--check",temp.name],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-marketplace-demo.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-quote-builder.mjs")],check=True)
 subprocess.run(["node",str(ROOT/"scripts/check-customer-dashboard.mjs")],check=True)
