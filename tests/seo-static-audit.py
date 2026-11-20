@@ -80,7 +80,10 @@ for lang, path in LANGUAGES.items():
         verify("oficiord@outlook.com" in legal_text and "soporte.oficiord@outlook.com" in legal_text, f"{lang}: existing contact addresses absent")
         for obsolete in ["No person has yet been appointed to actually operate it in the Dominican Republic", "operación en República Dominicana aún no", "La personne réellement chargée de son exploitation en République dominicaine", "Wer den Betrieb in der Dominikanischen Republik tatsächlich verantwortet"]:
             verify(obsolete not in legal_text, f"{lang}: obsolete operator plan in notice")
-        verify("Alemania" in legal_text or "Germany" in legal_text or "Deutschland" in legal_text or "Allemagne" in legal_text or "Almay" in legal_text, f"{lang}: missing German operator location")
+        pending = {"es":"Identificación del operador pendiente", "en":"Operator information to follow", "de":"Betreiberangaben werden nachgereicht", "fr":"Informations sur l'exploitant à venir", "ht":"Enfòmasyon sou responsab la ap vini pita"}
+        verify(pending[lang] in legal_text, f"{lang}: pending operator notice absent")
+        verify("Marc Rosemann" not in legal_text and "Marc Rosemann" not in page, f"{lang}: name unexpectedly public")
+        verify("noindex,follow" in legal_text, f"{lang}: unfinished information must stay out of search results")
         verify("noindex,follow" in legal_text, f"{lang}: unfinished legal details should stay noindex")
 
         verify("MARKETPLACE_LAUNCH_APPROVED=true" not in legal_text, f"{lang}: draft claims premature launch")
