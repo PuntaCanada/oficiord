@@ -70,6 +70,11 @@ for lang, path in LANGUAGES.items():
     verify('class="od-safety"' in page and 'id="seguridad"' in page, f"{lang}: safety section missing")
     verify('class="od-safety-contact"' in page, f"{lang}: reporting contact status absent")
     verify('href="mailto:oficiord@outlook.com?' in page, f"{lang}: verified OficioRD contact alias not linked")
+    verify('href="mailto:soporte.oficiord@outlook.com?' in page, f"{lang}: dedicated support and privacy contact not linked")
+    contact = page.split('<p class="od-safety-contact">', 1)[-1].split('</p>', 1)[0]
+    verify(contact.count('mailto:soporte.oficiord@outlook.com?') == 1, f"{lang}: support contact must appear once")
+    verify(contact.count('mailto:oficiord@outlook.com?') == 1, f"{lang}: general contact must appear once")
+    verify('marc.rosemann@email.de' not in contact, f"{lang}: personal email leaked in public contact")
     verify('marc.rosemann@email.de' not in page, f"{lang}: personal email must not be published")
     verify('class="od-safety-law"' in page, f"{lang}: platform responsibilities absent")
     verify('class="od-safety-footer" href="#seguridad"' in page, f"{lang}: safety footer link missing")
