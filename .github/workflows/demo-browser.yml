@@ -5,6 +5,8 @@ on:
     paths:
       - 'index.html'
       - 'account/**'
+      - 'admin/**'
+      - 'tests/admin-localization.mjs'
       - 'demo/**'
       - 'assets/**'
       - 'tests/demo-browser.mjs'
@@ -13,6 +15,8 @@ on:
     paths:
       - 'index.html'
       - 'account/**'
+      - 'admin/**'
+      - 'tests/admin-localization.mjs'
       - 'demo/**'
       - 'assets/**'
       - 'tests/demo-browser.mjs'
@@ -41,3 +45,6 @@ jobs:
           done
       - name: Test desktop, tablet, mobile, navigation and WCAG
         run: node tests/demo-browser.mjs
+      - name: Test localized private admin with synthetic mocked API data
+        run: node tests/admin-localization.mjs
+
