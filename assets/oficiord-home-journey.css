@@ -80,3 +80,16 @@
  header nav .language-controls{order:3;width:100%;margin:4px 0 0;justify-content:flex-start;flex-wrap:wrap}
  header nav .navlink{min-width:0;overflow-wrap:anywhere}
 }
+
+/* Public trust and safety: concise prominent warnings in five languages. */
+.od-safety{padding:35px 0 48px;background:#eaf2f6}
+.od-safety-panel{background:#fff;border:1px solid #cbdde7;border-left:5px solid #1b7089;border-radius:15px;padding:26px 29px;box-shadow:0 5px 15px #102b4610}
+.od-safety h2{margin:0 0 12px;color:#153d56;font-size:clamp(23px,3vw,29px)}
+.od-safety p,.od-safety li{font-size:15px;color:#284b60;line-height:1.65}
+.od-safety ul{padding-left:23px;margin:15px 0}
+.od-safety li+li{margin-top:9px}
+.od-safety-law{border-top:1px solid #d9e5ec;padding-top:15px}
+.od-safety-contact{border-radius:10px;background:#eff7fa;border:1px solid #cce2ed;padding:14px}
+footer .od-safety-footer{display:inline-block;margin-left:15px;color:#fff;text-underline-offset:3px}
+footer .od-safety-footer:focus-visible{outline:3px solid #ffc05a;outline-offset:3px}
+@media(max-width:600px){.od-safety{padding:20px 0 28px}.od-safety-panel{padding:18px 15px}.od-safety ul{padding-left:19px}}
