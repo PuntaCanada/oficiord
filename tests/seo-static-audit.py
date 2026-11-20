@@ -78,7 +78,7 @@ for lang, path in LANGUAGES.items():
         for section_id in ["operator", "contact", "privacy", "terms", "moderation"]:
             verify(f'id="{section_id}"' in legal_text, f"{lang}: legal section {section_id} missing")
         verify("oficiord@outlook.com" in legal_text and "soporte.oficiord@outlook.com" in legal_text, f"{lang}: existing contact addresses absent")
-        for obsolete in ["Dominican operator has been appointed", "operación en República Dominicana aún no", "La personne réellement chargée de son exploitation en République dominicaine", "Wer den Betrieb in der Dominikanischen Republik tatsächlich verantwortet"]:
+        for obsolete in ["No person has yet been appointed to actually operate it in the Dominican Republic", "operación en República Dominicana aún no", "La personne réellement chargée de son exploitation en République dominicaine", "Wer den Betrieb in der Dominikanischen Republik tatsächlich verantwortet"]:
             verify(obsolete not in legal_text, f"{lang}: obsolete operator plan in notice")
         verify("Alemania" in legal_text or "Germany" in legal_text or "Deutschland" in legal_text or "Allemagne" in legal_text or "Almay" in legal_text, f"{lang}: missing German operator location")
         verify("noindex,follow" in legal_text, f"{lang}: unfinished legal details should stay noindex")
