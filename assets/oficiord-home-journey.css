@@ -93,3 +93,19 @@
 footer .od-safety-footer{display:inline-block;margin-left:15px;color:#fff;text-underline-offset:3px}
 footer .od-safety-footer:focus-visible{outline:3px solid #ffc05a;outline-offset:3px}
 @media(max-width:600px){.od-safety{padding:20px 0 28px}.od-safety-panel{padding:18px 15px}.od-safety ul{padding-left:19px}}
+
+/* Contact requests open only on verified approved listings, with prior consent. */
+.od-contact-dialog{max-width:min(560px,95vw);max-height:90vh;overflow:auto;border:0;border-radius:16px;padding:0;box-shadow:0 25px 65px #001d3455}
+.od-contact-dialog::backdrop{background:#001a2dbb}
+.od-contact-form{padding:24px;display:grid;gap:12px}
+.od-contact-form h2{font-size:23px;margin:0;color:#143c55}
+.od-contact-form p{margin:0;line-height:1.55;color:#38576a}
+.od-contact-form label:not(.od-contact-consent){display:grid;gap:6px;font-weight:650}
+.od-contact-form input[type=email],.od-contact-form textarea{width:100%;border:1px solid #9cb1bc;border-radius:9px;padding:11px;font:inherit}
+.od-contact-form textarea{min-height:105px;resize:vertical}
+.od-contact-consent{display:flex;gap:10px;align-items:flex-start;line-height:1.55}
+.od-contact-consent input{width:auto;flex:none;margin-top:5px}
+.od-contact-actions{display:flex;flex-wrap:wrap;gap:10px}
+.od-contact-button{display:inline-block;background:#185770;color:white;margin-top:8px;padding:10px 13px}
+.od-contact-form button:focus-visible,.od-contact-button:focus-visible{outline:3px solid #f7b84b;outline-offset:3px}
+@media(max-width:540px){.od-contact-form{padding:17px}.od-contact-dialog{max-height:94vh}}

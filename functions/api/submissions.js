@@ -14,7 +14,11 @@ export async function onRequestGet({env,request}){
  }catch{return send({error:'SERVER_ERROR'},500);}
 }
 export async function onRequestPost({env,request}){
- if(env.SUBMISSIONS_ENABLED!=='true')return send({error:'SUBMISSIONS_NOT_ENABLED'},503);
+ if(env.MARKETPLACE_LAUNCH_APPROVED!=='true'||env.LEGAL_READINESS_CONFIRMED!=='true'||env.SUBMISSIONS_ENABLED!=='true')return send({error:'SUBMISSIONS_NOT_ENABLED'},503);
+ if(typeof env.MODERATION_ADMIN_KEY!=='string'||env.MODERATION_ADMIN_KEY.length<32)return send({error:'MODERATION_NOT_CONFIGURED'},503);
+ const origin=request.headers.get('origin');
+ if(origin&&origin!==new URL(request.url).origin)return send({error:'INVALID_ORIGIN'},403);
+ if(!request.headers.get('content-type')?.startsWith('application/json'))return send({error:'INVALID_CONTENT_TYPE'},415);
  if(!env.DB)return send({error:'DATABASE_NOT_CONFIGURED'},503);
  if(!env.TURNSTILE_SECRET||!env.TURNSTILE_SITE_KEY)return send({error:'ANTI_SPAM_NOT_CONFIGURED'},503);
  if(Number(request.headers.get('content-length')||0)>12000)return send({error:'TOO_LARGE'},413);
