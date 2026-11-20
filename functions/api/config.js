@@ -4,7 +4,7 @@ export async function onRequestGet({env}) {
   const launchApproved=env.MARKETPLACE_LAUNCH_APPROVED==='true'&&env.LEGAL_READINESS_CONFIRMED==='true';
   const moderationReady=typeof env.MODERATION_ADMIN_KEY==='string'&&env.MODERATION_ADMIN_KEY.length>=32;
   let submissionsSchemaReady=false, contactSchemaReady=false, reportSchemaReady=false;
-  if(env.DB){
+  if(env.DB && (env.SUBMISSIONS_ENABLED==='true'||env.CONTACT_REQUESTS_ENABLED==='true'||env.REPORTS_ENABLED==='true')){
     try{await env.DB.prepare('SELECT id FROM submissions LIMIT 1').first();await env.DB.prepare('SELECT key FROM rate_limits LIMIT 1').first();submissionsSchemaReady=true}catch{}
     if(submissionsSchemaReady){
       try{await env.DB.prepare('SELECT id FROM contact_requests LIMIT 1').first();await env.DB.prepare('SELECT key FROM contact_rate_limits LIMIT 1').first();contactSchemaReady=true}catch{}
