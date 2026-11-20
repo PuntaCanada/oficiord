@@ -1,101 +1,79 @@
-# OficioRD — Internal operator / technical provider playbook (NOT a signed agreement)
+# OficioRD — Betreiberentscheidung / operator decision (20 November 2026)
 
-> **Internal draft only.** The Dominican operator is not identified, no actual role allocation is executed, and the legal readiness flags must remain false. This file is not a public legal contract or legal advice. Obtain review under Dominican law and, if applicable, EU/German law.
-
-## Español (ES)
-
-**Roles / Responsabilidades:** Operador responsable en República Dominicana: [NOMBRE, DIRECCIÓN, CONTACTO, RNC SI APLICA]. Prestador técnico en Alemania: [NOMBRE/EMPRESA, UBICACIÓN]. No designar responsables ficticios. Las decisiones reales sobre fines y medios del tratamiento, usuarios, publicaciones y derechos de privacidad deben asignarse por escrito.
-
-**Tasks / Tareas:** Operador: comprobar identidad y posibles registros, aprobar/rechazar anuncios, revisar denuncias y solicitudes de contacto, ejercer retirada y eliminación, contestar derechos y gestionar incidentes. Técnico: mantener código, seguridad, copias y despliegues según instrucciones documentadas; limitar accesos y no decidir unilateralmente el uso de datos.
-
-**Agreement draft / Acuerdo:** Acuerdo por firmar: Partes [PENDIENTE], fecha [PENDIENTE], finalidad del tratamiento [PENDIENTE], duración y terminación [PENDIENTE], categorías de datos y destinatarios [PENDIENTE], obligaciones de confidencialidad y seguridad, subencargados y transferencias internacionales, instrucciones documentadas, cooperación en derechos y violaciones de datos, exportación/supresión al terminar, responsabilidades y jurisdicción [POR REVISAR]. No es un contrato firmado ni sustituye asesoría legal.
-
-**Moderation:** Antes de publicar: revisar título, zona, categoría y texto; suprimir teléfonos, direcciones privadas, nombres de terceros y datos de pago; rechazar fraude, ofertas prohibidas, suplantación o discriminación. No prometer verificación de identidad/licencias que no se ha hecho. Contactos: verificar intención y consentimiento, pasar manualmente solo el mensaje necesario y correo de respuesta. Registrar las decisiones sin divulgar datos.
-
-**Deletion and rights:** Procesar peticiones de acceso/rectificación/supresión por soporte.oficiord@outlook.com; comprobar identidad de quien solicita sin pedir documentos excesivos, localizar registros de D1 y copias, evaluar obligaciones de conservación, ejecutar supresión y confirmar. Los paneles permiten borrado manual; NO existe una purga automática de registros ni un plazo aprobado. Definir plazos con asesoría antes del lanzamiento.
-
-**Launch gate:** La aprobación LEGAL_READINESS_CONFIRMED=true está prohibida hasta finalizar identidad, aviso legal, política, retención, jurisdicción y pruebas; no activar los otros interruptores antes de ello.
-
----
-
-## English (EN)
-
-**Roles / Responsabilidades:** Actual Dominican operator: [NAME, ADDRESS, CONTACT, RNC IF APPLICABLE]. Technical provider in Germany: [NAME/BUSINESS, LOCATION]. Do not appoint a nominal controller. Actual decisions about purposes, means, moderation and data rights must be allocated in writing.
-
-**Tasks / Tareas:** Operator: confirm identity/registrations, approve and reject listings, review reports and contact enquiries, remove content, handle deletion and data rights, manage incidents. Technical provider: maintain code, security, backups and deployments under documented instructions, minimize access and never independently determine new data uses.
-
-**Agreement draft / Acuerdo:** Draft agreement to sign: Parties [PENDING], date [PENDING], processing purpose [PENDING], duration and exit [PENDING], data classes/recipients [PENDING], confidentiality and security duties, subprocessors/international access, documented instructions, assistance for rights and incidents, return or deletion on termination, liability and jurisdiction [LEGAL REVIEW]. This is not an executed contract.
-
-**Moderation:** Before approval check titles, location, category and copy; remove phone numbers, residential addresses, third-party names and payment details; reject fraud, prohibited listings, impersonation and discrimination. Never claim identity or license checks not performed. For contacts, check consent and content and relay manually only the necessary message and response email. Record decisions privately.
-
-**Deletion and rights:** Handle access/correction/deletion requests via soporte.oficiord@outlook.com; proportionately verify the requester, locate D1 records and copies, check any retention obligations, delete as permitted and confirm. Admin tools allow manual deletion; NO automatic purge or approved retention limit exists. Agree actual periods before launch.
-
-**Launch gate:** Do not turn LEGAL_READINESS_CONFIRMED=true until the operator identity, legal notice, privacy policy, retention, jurisdiction and acceptance checks are finalized.
-
----
+> **Vorbereitungsstand, keine rechtliche Freigabe.** Der Gründer hat erklärt, OficioRD zunächst **persönlich aus Deutschland** zu betreiben. Der vollständige bürgerliche Name und eine zutreffende deutsche Anschrift wurden noch nicht übermittelt; sie dürfen nicht aus einem Online-Namen erschlossen werden. Die Datenannahme bleibt deaktiviert. Diese Unterlage ersetzt keine Rechtsberatung.
 
 ## Deutsch (DE)
 
-**Roles / Responsabilidades:** Tatsächlicher Betreiber in der Dominikanischen Republik: [NAME, ANSCHRIFT, KONTAKT, RNC FALLS NÖTIG]. Technischer Dienstleister aus Deutschland: [NAME/FIRMA, ORT]. Keine Strohperson benennen. Wer Zwecke und Mittel der Datenverarbeitung sowie Moderation und Betroffenenrechte tatsächlich bestimmt, wird schriftlich festgelegt.
+**Betreiber:** Privatperson in Deutschland: [VOLLSTÄNDIGER BÜRGERLICHER NAME OFFEN], [LADUNGSFÄHIGE ANSCHRIFT OFFEN]; Angaben zu steuerlicher/gewerblicher Einordnung prüfen. Zielmarkt: Dominikanische Republik; derzeit kein dominikanischer Betreiber benannt.
 
-**Tasks / Tareas:** Betreiber: Identität/Registrierung prüfen, Anzeigen freigeben/ablehnen, Beschwerden und Kontaktanfragen bearbeiten, Inhalte entfernen, Löschungen und Betroffenenrechte verantworten, Vorfälle bearbeiten. Technik: Code, Sicherheit, Backups und Deployments nur nach dokumentierten Weisungen betreuen, Berechtigungen begrenzen und keine eigenen Zwecke bestimmen.
+**Aufgaben:** Betreiber verantwortet Zweck und Mittel der Datenverarbeitung, Anzeigen- und Nachrichtenmoderation, Beschwerden, Missbrauchssperren, Nutzerrechte, Vorfälle und Löschungen. Eine spätere technische Delegation verschiebt die Verantwortlichkeit nicht automatisch.
 
-**Agreement draft / Acuerdo:** Zu unterzeichnender Entwurf: Parteien [OFFEN], Datum [OFFEN], Zweck und Gegenstand [OFFEN], Dauer/Beendigung [OFFEN], Datenkategorien/Empfänger [OFFEN], Vertraulichkeit und technische Schutzmaßnahmen, Unterauftragnehmer/Drittlandzugriffe, Weisungen, Unterstützung bei Anfragen und Vorfällen, Rückgabe/Löschung am Ende, Haftung und Gerichtsstand [JURISTISCH PRÜFEN]. Kein unterschriebener Vertrag.
+**Datenschutz:** Vor Aktivierung Rechtsgrundlagen, vollständige Information für Nutzer, relevante Cloudflare-Vertragsbedingungen, technische Schutzmaßnahmen, Drittlandzugriffe, Empfänger, echte Speicher-/Löschfristen und gegebenenfalls DSGVO-/DDG-/dominikanische Pflichten prüfen. Für Auftrags- und Kontakt-Datensätze gibt es bislang keine automatische Aufbewahrungsregel.
 
-**Moderation:** Vor Freigabe Titel, Ort, Kategorie und Beschreibung prüfen; Telefonnummern, private Anschriften, fremde Namen und Zahlungsdetails entfernen; Betrug, unzulässige Angebote, Identitätsmissbrauch und Diskriminierung ablehnen. Niemals Identitäts-/Lizenzprüfung behaupten, die nicht stattgefunden hat. Kontaktanfragen mit Einwilligung prüfen; nur erforderlichen Text und Antwortadresse manuell weitergeben, Entscheidungen intern dokumentieren.
+**Moderation und Löschung:** Anträge auf Veröffentlichung zunächst privat prüfen; persönliche Kontaktdaten nicht auf öffentlicher Pinnwand veröffentlichen. Nachrichten nur nach Prüfung manuell weitergeben. Lösch- oder Auskunftsanfragen an soporte.oficiord@outlook.com bearbeiten; Identität verhältnismäßig verifizieren, Datensätze einschließlich Backups berücksichtigen, Löschung dokumentieren und bestätigen. Keine Prüfung/Weiterleitung ohne sichergestellte Betreiberkapazität versprechen.
 
-**Deletion and rights:** Auskunfts-, Berichtigungs- und Löschanfragen über soporte.oficiord@outlook.com bearbeiten; Identität verhältnismäßig prüfen, D1-Datensätze und Kopien suchen, Aufbewahrungspflichten klären, zulässige Löschung vornehmen und bestätigen. Manuelles Löschen ist möglich; es gibt KEINE automatische Löschung und keine genehmigten Speicherfristen. Vor Start konkret festlegen.
+**Startbedingungen:** Vor LIVE-Nutzerformularen den Betreiber mit zutreffenden Angaben nennen, vollständige Rechtstexte veröffentlichen, echte Datenflüsse und Löschverfahren testen, Supportbetrieb sicherstellen und Freischalter erst dann ausdrücklich wahrheitsgemäß setzen.
 
-**Launch gate:** LEGAL_READINESS_CONFIRMED=true nicht setzen, bevor Betreiberidentität, Anbieterkennzeichnung, Datenschutz, Löschfristen, Rechtsanwendbarkeit und Abnahmetests geklärt sind.
+## Español (ES)
 
----
+**Operador:** Persona física situada en Alemania: [NOMBRE LEGAL COMPLETO PENDIENTE], [DOMICILIO VÁLIDO PENDIENTE]. Verificar obligaciones fiscales y de actividad económica. Mercado: República Dominicana. No se ha nombrado un operador dominicano.
+
+**Obligaciones:** El operador decide realmente los fines y medios del tratamiento, revisa anuncios y consultas, gestiona denuncias, derechos de las personas, incidentes y eliminación. Delegar tareas técnicas no elimina por sí solo esa responsabilidad.
+
+**Privacidad:** Antes de activar formularios, completar identidad, política de privacidad, bases legales, condiciones Cloudflare, destinatarios y accesos internacionales, seguridad, plazos reales de conservación y eliminación; revisar las normas alemanas/europeas y dominicanas aplicables. No existe purga automática en las tablas de solicitudes y contactos.
+
+**Moderación:** Revisar los anuncios antes de publicar y mantener los correos privados fuera del tablón. Transmitir consultas manualmente solo después de comprobar contenido y consentimiento. Tratar acceso y eliminación mediante soporte.oficiord@outlook.com, incluyendo copias de respaldo y confirmación.
+
+**Puerta de lanzamiento:** Datos del operador veraces, documentos y procedimientos completos, pruebas reales, soporte disponible. No marcar aprobación legal o lanzamiento hasta que esto se cumpla.
+
+## English (EN)
+
+**Operator:** Germany-based individual: [FULL LEGAL NAME PENDING], [VALID SERVICE ADDRESS PENDING]. Check tax/business status. Marketplace is intended for Dominican Republic; no Dominican operator has been appointed.
+
+**Accountabilities:** The operator actually determines data-processing purposes and means, listing moderation, contacts, reports, user rights, incident response and deletion. Delegating IT duties does not automatically transfer controller obligations.
+
+**Privacy:** Complete the accurate operator notice, lawful bases, Cloudflare arrangements, recipients and international access, security, real retention/deletion periods and relevant German/EU/Dominican obligations before enabling live forms. No automatic data purge is currently implemented.
+
+**Moderation and deletion:** Manually review listings and contact requests; never expose private owner emails in public listings. Process access/deletion requests at soporte.oficiord@outlook.com, consider backups, verify identities proportionately and document results.
+
+**Launch gate:** Truthful operator details, completed policies and operational procedures, functional tests and available support are required before any legal-readiness approval or live data collection.
 
 ## Français (FR)
 
-**Roles / Responsabilidades:** Exploitant réel en République dominicaine : [NOM, ADRESSE, CONTACT, RNC SI NÉCESSAIRE]. Prestataire technique en Allemagne : [NOM/ENTREPRISE, LIEU]. Aucun prête-nom. Attribuer par écrit les décisions réelles sur les finalités, moyens, modération et demandes de confidentialité.
+**Exploitant :** Particulier établi en Allemagne : [NOM LÉGAL COMPLET À CONFIRMER], [ADRESSE DE NOTIFICATION À CONFIRMER]. Vérifier les obligations fiscales et commerciales. Le marché visé est la République dominicaine ; aucun exploitant dominicain n'a été nommé.
 
-**Tasks / Tareas:** Exploitant : contrôler identité et enregistrements, approuver/refuser les annonces, examiner signalements et contacts, retirer du contenu, traiter l'effacement et les droits, gérer les incidents. Prestataire technique : maintenir code, sécurité, sauvegardes et déploiement sur instructions documentées, limiter les accès et ne pas définir d'autres usages des données.
+**Responsabilités :** L'exploitant décide réellement des finalités et moyens du traitement, de la modération, des contacts, des signalements, des droits, des incidents et de l'effacement. La délégation informatique ne transfère pas automatiquement cette responsabilité.
 
-**Agreement draft / Acuerdo:** Projet d'accord à signer : Parties [À DÉFINIR], date [À DÉFINIR], finalité [À DÉFINIR], durée/résiliation [À DÉFINIR], catégories de données/destinataires [À DÉFINIR], confidentialité, sécurité, sous-traitants et transferts internationaux, instructions, assistance aux droits et incidents, restitution/effacement, responsabilité et juridiction [EXAMEN JURIDIQUE]. Aucun accord n'est signé.
+**Confidentialité :** Avant tout formulaire réel, compléter les mentions de l'exploitant, bases juridiques, accords Cloudflare, destinataires, accès internationaux, sécurité, délais réels de conservation et suppression et obligations applicables en Allemagne/UE/République dominicaine. Aucun effacement automatique n'est actuellement en place.
 
-**Moderation:** Avant publication, contrôler titre, région, catégorie et description ; supprimer téléphones, domiciles privés, noms de tiers et données de paiement ; refuser fraude, usurpation et discrimination. Ne pas prétendre avoir vérifié licences et identités si ce n'est pas vrai. Pour les contacts, contrôler consentement et contenu, transmettre manuellement uniquement le message nécessaire et l'e-mail de réponse, consigner les décisions en privé.
+**Modération et suppression :** Examiner manuellement les annonces et messages, ne jamais afficher les e-mails privés publiquement, traiter les demandes par soporte.oficiord@outlook.com et tenir compte des copies de sauvegarde.
 
-**Deletion and rights:** Traiter accès, correction et effacement à soporte.oficiord@outlook.com ; vérifier proportionnellement l'identité, rechercher les données D1 et copies, contrôler les obligations de conservation, effacer selon le droit et confirmer. L'effacement manuel est possible ; AUCUNE purge automatique ni durée approuvée n'existe. Définir les délais avant lancement.
-
-**Launch gate:** Ne pas fixer LEGAL_READINESS_CONFIRMED=true sans validation de l'exploitant, mentions légales, confidentialité, conservation, juridiction et essais.
-
----
+**Activation :** Identité exacte, avis et procédures complets, tests et support fonctionnel avant toute activation ou confirmation juridique.
 
 ## Kreyòl ayisyen (HT)
 
-**Roles / Responsabilidades:** Responsab reyèl nan Repiblik Dominikèn: [NON, ADRÈS, KONTAK, RNC SI SA NESESÈ]. Moun oswa konpayi teknik nan Almay: [NON, KOTE]. Pa mete yon moun sèlman pou prete non li. Ekri kiyès ki vrèman pran desizyon sou itilizasyon done, anons ak dwa moun.
+**Responsab :** Yon moun ki abite Almay : [NON LEGAL KONPLÈ POU KONFIME], [ADRÈS VALAB POU KONFIME]. Verifye obligasyon taks ak aktivite ekonomik. Platfòm nan fèt pou Repiblik Dominikèn; pa gen responsab dominiken ki nonmen.
 
-**Tasks / Tareas:** Responsab la: verifye idantite/anrejistreman, aksepte oswa rejte anons, trete plent ak demann kontak, retire kontni, okipe efasman ak dwa moun, jere ensidan. Moun teknik la: okipe kòd, sekirite, kopi ak deplwaman selon enstriksyon ekri; limite aksè, pa deside lòt itilizasyon done pou kont li.
+**Travay responsab la :** Se moun sa a ki deside objektif ak fason yo trete done, verifye anons ak kontak, trete rapò, dwa moun, ensidan ak efasman. Bay yon lòt moun travay teknik pa vle di li pran tout responsablite legal yo.
 
-**Agreement draft / Acuerdo:** Bouyon akò pou siyen: Pati yo [POKO DEFINI], dat [POKO DEFINI], objektif [POKO DEFINI], dire/fen [POKO DEFINI], kalite done/moun k ap resevwa yo [POKO DEFINI], sekrè ak sekirite, lòt founisè ak transfè entènasyonal, enstriksyon ekri, èd pou dwa moun/ensidan, retou oswa efasman, responsablite ak tribinal [POU AVOKA VERIFYE]. Sa pa yon kontra ki siyen.
+**Vi prive :** Anvan ouvè fòm reyèl yo, fini enfòmasyon responsab la, baz legal, kondisyon Cloudflare, moun ki resevwa done, aksè depi lòt peyi, sekirite, konbyen tan n ap kenbe done yo, kijan n ap efase yo, ak lwa Almay/Inyon Ewopeyen/Repiblik Dominikèn ki aplikab. Pa gen efasman otomatik ki deja fèt.
 
-**Moderation:** Anvan pibliye, verifye tit, zòn, kategori ak tèks; retire telefòn, adrès kay, non lòt moun ak enfòmasyon peman; rejte fwod, moun k ap pran idantite lòt moun ak diskriminasyon. Pa di nou verifye lisans si nou pa fè sa. Pou kontak, verifye konsantman, voye sèlman mesaj ki nesesè ak imel repons lan manyèlman; kenbe dosye desizyon yo prive.
+**Moderasyon ak efasman :** Verifye anons ak demann kontak alamen, pa mete imel prive sou paj piblik la. Trete demann nan soporte.oficiord@outlook.com, konsidere kopi sekou epi dokimante rezilta yo.
 
-**Deletion and rights:** Pou aksè, koreksyon oswa efase done, itilize soporte.oficiord@outlook.com. Verifye idantite moun nan san mande twòp papye, chèche done nan D1 ak kopi, konsidere obligasyon legal, efase lè sa posib epi konfime. Efase alamen posib; PA GEN efasman otomatik ni delè konsèvasyon ki apwouve. Fikse règ yo anvan ouvèti.
-
-**Launch gate:** Pa mete LEGAL_READINESS_CONFIRMED=true anvan responsab reyèl, avi legal, vi prive, delè efasman, lwa ki aplikab ak tès yo fin verifye.
+**Anvan ouvèti :** Vrè idantite ak adrès, avi konplè, pwosedi pratik, tès ak sipò ki disponib; pa mete okenn konfimasyon legal oswa aktivasyon si kondisyon sa yo poko reyini.
 
 ---
 
-## Primary sources for lawyer's review
+## Verbleibende Start-Checkliste / Launch checklist
 
-- Dominican Ley 172-13 (official): https://www.sb.gob.do/regulacion/leyes/ley-no-172-13-proteccion-de-los-datos/
-- Dominican consumer Ley 358-05 (Pro Consumidor): https://proconsumidor.gob.do/files/ley-358-05.pdf
-- GDPR and actual controller/processor roles (when applicable): https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng/
+- [x] Tatsächliche Betreiberentscheidung: Nutzer übernimmt persönlich aus Deutschland
+- [ ] Vollständigen bürgerlichen Namen (nicht Nickname) und geeignete ladungsfähige Anschrift bestätigt
+- [ ] Steuer-/Gewerbe-/Unternehmenspflichten geprüft
+- [ ] Anbieterkennzeichnung und Datenschutz mit tatsächlichen Daten in allen fünf Sprachen finalisiert
+- [ ] Cloudflare-Vertragsverhältnisse, Auslandszugriffe, Sicherheits- und Betroffenenprozesse geprüft
+- [ ] Verbindliche, tatsächlich implementierte Lösch-/Aufbewahrungsfristen und Backup-Prozess
+- [ ] Preview-Tests für Einreichung, Moderation, Kontakt, Meldung und Löschung erfolgreich
+- [ ] Sicherer Adminbetrieb, Zugriffsverwaltung und regelmäßige Moderationsbereitschaft
+- [ ] Erst danach echte Datenannahme gezielt in Production aktivieren
 
-## Operator acceptance checklist (do not pre-tick)
-
-- [ ] Actual operator identified and has agreed to act, address/registration and jurisdiction reviewed
-- [ ] German technical operator's real role, access and instructions determined
-- [ ] Draft agreement legally reviewed and actually signed
-- [ ] Five-language public notices reviewed, completed with truthful details
-- [ ] Practical retention periods, manual/automatic deletion, backups and incident response agreed and tested
-- [ ] D1/Turnstile production setup, administrative roles and complaint queue tested with synthetic data
-- [ ] All applicable privacy, consumer, identity and tax duties checked with suitable local advisers
-- [ ] No fake listings or accidental publication of test data
-- [ ] All live intake switches remain false until approved; only then a controlled limited launch
+Alle fünf Production-Flags (`SUBMISSIONS_ENABLED`, `CONTACT_REQUESTS_ENABLED`, `REPORTS_ENABLED`, `LEGAL_READINESS_CONFIRMED`, `MARKETPLACE_LAUNCH_APPROVED`) bleiben bis dahin `false`. GitHub-Änderungen allein schalten sie nicht frei.
