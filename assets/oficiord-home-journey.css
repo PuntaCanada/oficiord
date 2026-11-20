@@ -73,3 +73,10 @@
 .od-public-actions a:focus-visible{outline:3px solid #e68b25;outline-offset:2px}
 .od-board-empty .od-board-action{display:inline-flex;margin-top:12px}
 @media(max-width:600px){.od-public-start{padding:15px 0}.od-public-start-panel{padding:19px 16px}.od-public-actions a{width:100%;justify-content:center}}
+
+/* Keep longer localized public navigation from overflowing mid-sized tablets. */
+@media(max-width:900px){
+ header nav{display:flex;flex-wrap:wrap;justify-content:flex-start;min-width:0}
+ header nav .language-controls{order:3;width:100%;margin:4px 0 0;justify-content:flex-start;flex-wrap:wrap}
+ header nav .navlink{min-width:0;overflow-wrap:anywhere}
+}
