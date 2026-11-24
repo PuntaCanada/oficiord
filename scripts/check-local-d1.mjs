@@ -3,6 +3,8 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {Miniflare} from 'miniflare';
+import {onRequestPost as contact} from '../functions/api/contact-requests.js';
+import {onRequestGet as health} from '../functions/api/health.js';
 const mf=new Miniflare({
  modules:true,
  script:"export default {fetch(){return new Response('test only')}}",
@@ -11,7 +13,7 @@ const mf=new Miniflare({
 try{
  const db=await mf.getD1Database('DB');
  const migrations=[
-  '0001_init.sql','0002_reports.sql','0003_marketplace.sql',
+  '0001_init.sql','0002_reports.sql','0003_contact_requests.sql','0003_marketplace.sql',
   '0004_accounts.sql','0005_magic_links.sql',
   '0006_privacy_requests.sql','0007_login_redemptions.sql'
  ];
@@ -23,6 +25,35 @@ try{
   assert.ok(statements.length>0);
   await db.batch(statements.map(statement=>db.prepare(statement)));
  }
+ const readiness=await (await health({env:{DB:db}})).json();
+ assert.equal(readiness.contactSchema,'ready');
+ assert.equal(readiness.reportingSchema,'ready');
+ const listing='a1234567-1234-4234-9234-123456789012';
+ await db.prepare("INSERT INTO submissions(id,kind,title,city,category,description,contact_email,status) VALUES(?,?,?,?,?,?,?,?)")
+  .bind(listing,'professional','Synthetic D1 test','Test area','test','Test fixture','listing@example.invalid','approved').run();
+ const env={
+  DB:db,MARKETPLACE_LAUNCH_APPROVED:'true',LEGAL_READINESS_CONFIRMED:'true',
+  CONTACT_REQUESTS_ENABLED:'true',MODERATION_ADMIN_KEY:'synthetic-test-moderation-key-only',
+  TURNSTILE_SITE_KEY:'synthetic-site-key',TURNSTILE_SECRET:'synthetic-turnstile-secret'
+ };
+ const originalFetch=globalThis.fetch;
+ try {
+  globalThis.fetch=async input=>{
+   if(input!=='https://challenges.cloudflare.com/turnstile/v0/siteverify')return originalFetch(input);
+   return Response.json({success:true});
+  };
+  const attempts=await Promise.all(Array.from({length:6},()=>contact({env,request:new Request('https://test.invalid/api/contact-requests',{
+   method:'POST',headers:{'content-type':'application/json','cf-connecting-ip':'192.0.2.1'},
+   body:JSON.stringify({submissionId:listing,senderEmail:'sender@example.invalid',
+    message:'Synthetic contact for local D1 testing.',consent:true,turnstileToken:'synthetic-token'})
+  })})));
+  assert.deepEqual(attempts.map(result=>result.status).sort(),[202,202,202,429,429,429]);
+ } finally {globalThis.fetch=originalFetch;}
+ assert.equal((await db.prepare("SELECT count(*) AS n FROM contact_requests WHERE status='pending'").first()).n,3);
+ assert.equal((await db.prepare("SELECT count FROM contact_rate_limits").first()).count,3);
+ await db.prepare('DELETE FROM submissions WHERE id=?').bind(listing).run();
+ assert.equal((await db.prepare('SELECT count(*) AS n FROM contact_requests').first()).n,0);
+ console.log('PASS: local contact migration, readiness, concurrent rate limits and cascading deletion');
  const base=await readFile(new URL('../functions/_lib/magic-link.js',import.meta.url),'utf8');
  const baseURL='data:text/javascript;base64,'+Buffer.from(base).toString('base64');
  const lifecycle=(await readFile(new URL('../functions/_lib/atomic-login.js',import.meta.url),'utf8'))

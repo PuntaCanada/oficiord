@@ -13,7 +13,7 @@ const flags={MARKETPLACE_LAUNCH_APPROVED:'true',LEGAL_READINESS_CONFIRMED:'true'
 const saved=[];
 const db={prepare(query){const statement={
  bind(...values){return {...statement,values}},
- async first(){if(query.includes('FROM submissions'))return {id:uuid};return null},
+ async first(){if(query.includes('FROM submissions'))return {id:uuid};if(query.includes('RETURNING count'))return {count:1};return null},
  async run(){if(query.startsWith('INSERT INTO contact_requests'))saved.push(this.values);return {meta:{changes:1}}},
  async all(){return {results:[{id:uuid,listing_title:'Example placeholder',sender_email:'person@example.org',listing_contact_email:'owner@example.org'}]}}
 };return statement}};
