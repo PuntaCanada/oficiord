@@ -3,6 +3,7 @@ name: OficioRD real Chromium mobile checks
 on:
   pull_request:
     paths:
+      - 'functions/api/contact-requests.js'
       - 'demo/**'
       - 'index.html'
       - 'en/index.html'
@@ -18,6 +19,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'functions/api/contact-requests.js'
       - 'demo/**'
       - 'index.html'
       - 'en/index.html'

@@ -49,8 +49,19 @@ if(validCategories.has(initialCategory))$('category').value=initialCategory;
 if(initialQuery)$('q').value=initialQuery.slice(0,60);
 const norm=v=>String(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function filterItems(items,type){
- const city=$('city').value,cat=$('category').value,q=norm($('q').value.trim());
- return items.filter(x=>(!city||(type==='pro'?x.service.includes(city):x.city===city))&&(!cat||(type==='pro'?x.cats.includes(cat):x.cat===cat))&&(!q||norm([type==='pro'?x.name:jobText(x).title,x.city,type==='pro'?x.bio:jobText(x).description,(type==='pro'?x.cats:[x.cat]).map(c=>cats[c][language]).join(' ')].join(' ')).includes(q)));
+ const city=$('city').value,category=$('category').value;
+ const terms=norm($('q').value.trim()).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+ const isProfessional=type==='pro';
+ return items.filter(entry=>{
+  const areas=isProfessional?entry.service:[entry.city];
+  const categories=isProfessional?entry.cats:[entry.cat];
+  if(city&&!areas.includes(city)||category&&!categories.includes(category))return false;
+  if(!terms.length)return true;
+  const {title,description}=isProfessional?{title:entry.name,description:entry.bio}:jobText(entry);
+  const labels=categories.flatMap(key=>[cats[key][language],cats[key].es]);
+  const searchable=norm([title,description,entry.city,...areas,...labels].join(' '));
+  return terms.every(term=>searchable.includes(term));
+ });
 }
 const cardPhoto={ac:'hvac',plumbing:'plumbing',electric:'electric',clean:'cleaning',appliance:'appliances'};
 function textCard(title,meta,description,tags,photoKey,profileId=null,jobId=null){

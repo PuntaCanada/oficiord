@@ -3,6 +3,8 @@ name: OficioRD local Cloudflare D1 integration
 on:
   pull_request:
     paths:
+      - 'functions/api/health.js'
+      - 'functions/api/contact-requests.js'
       - 'functions/_lib/atomic-login.js'
       - 'migrations/**'
       - 'scripts/check-local-d1.mjs'
@@ -10,6 +12,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'functions/api/health.js'
+      - 'functions/api/contact-requests.js'
       - 'functions/_lib/atomic-login.js'
       - 'migrations/**'
       - 'scripts/check-local-d1.mjs'

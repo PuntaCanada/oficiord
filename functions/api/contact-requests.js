@@ -35,10 +35,13 @@ export async function onRequestPost({env,request}){
   const hash=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
   const now=Math.floor(Date.now()/1000);
   await env.DB.prepare('DELETE FROM contact_rate_limits WHERE expires_at<?').bind(now).run();
-  const existing=await env.DB.prepare('SELECT count FROM contact_rate_limits WHERE key=? AND expires_at>?').bind(hash,now).first();
-  if(existing?.count>=3)return reply({error:'RATE_LIMIT'},429);
-  await env.DB.prepare('INSERT INTO contact_rate_limits(key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=CASE WHEN expires_at<=? THEN 1 ELSE count+1 END,expires_at=CASE WHEN expires_at<=? THEN ? ELSE expires_at END')
-   .bind(hash,now+3600,now,now,now+3600).run();
+  const slot=await env.DB.prepare(`INSERT INTO contact_rate_limits(key,count,expires_at) VALUES (?,1,?)
+   ON CONFLICT(key) DO UPDATE SET
+    count=CASE WHEN expires_at<=? THEN 1 ELSE count+1 END,
+    expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END
+   WHERE expires_at<=? OR count<3 RETURNING count`)
+   .bind(hash,now+3600,now,now,now).first();
+  if(!slot)return reply({error:'RATE_LIMIT'},429);
   await env.DB.prepare('INSERT INTO contact_requests(id,submission_id,sender_email,message) VALUES(?,?,?,?)')
    .bind(crypto.randomUUID(),body.submissionId,body.senderEmail.trim(),body.message.trim()).run();
   return reply({ok:true,status:'pending',notice:'CONTACT_AWAITS_MANUAL_REVIEW'},202);
