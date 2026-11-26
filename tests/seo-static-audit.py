@@ -57,7 +57,8 @@ for entry in tree.getroot().findall(f"{SITE}url"):
     url = entry.findtext(f"{SITE}loc")
     verify(url not in sitemap, f"Duplicate sitemap URL {url}")
     sitemap[url] = {x.get("hreflang"): x.get("href") for x in entry.findall(f"{XHTML}link")}
-verify(set(sitemap) == set(ALL.values()), "Sitemap must contain exactly five public homepages")
+PARTNERS = {lang: url + "partners.html" for lang, url in ALL.items()}
+verify(set(sitemap) == set(ALL.values()) | set(PARTNERS.values()), "Sitemap must contain five homepages and five partner pages")
 expected = {**ALL, "x-default": BASE + "/"}
 for lang, path in LANGUAGES.items():
     html = ROOT / path.lstrip("/") / "index.html" if path != "/" else ROOT / "index.html"
@@ -134,6 +135,22 @@ for lang, path in LANGUAGES.items():
             verify(obj.get("@type") == "WebSite" and obj.get("url") == BASE + "/", f"{lang}: bad structured data")
         except json.JSONDecodeError:
             errors.append(f"{lang}: invalid JSON-LD")
+for lang, path in LANGUAGES.items():
+    partner = (ROOT / path.lstrip("/") / "partners.html").read_text(encoding="utf-8")
+    home = (ROOT / path.lstrip("/") / "index.html").read_text(encoding="utf-8")
+    import re
+    links = re.findall(r'<li><a href="([^"]+)"', partner)
+    verify(len(links) == len(set(links)) == 14 and BASE + "/" not in links, f"{lang}: invalid partner links")
+    verify(set(links) == set(["https://comparanetrd.pages.dev/","https://islaviva-rd.pages.dev/","https://vuelosrd.pages.dev/","https://recarganet-rd.pages.dev/","https://by-maria-beauty-store.pages.dev/","https://gewinnradar.pages.dev/","https://demoradar.pages.dev/","https://ahorrord.pages.dev/","https://hablard.pages.dev/","https://transporterd.pages.dev/","https://aprenderd.pages.dev/","https://handyfix.pages.dev/","https://dateiwerk.pages.dev/","https://voicefix.pages.dev/"]), f"{lang}: unexpected partner destination")
+    verify(re.search(r'simulat|simulaci|similasyon', partner, re.I), f"{lang}: missing simulation disclosure")
+    verify(f'href="{path}partners.html"' in home, f"{lang}: missing partner navigation")
+    parsed = Head()
+    parsed.feed(partner)
+    verify(parsed.lang == lang, f"{lang}: partner language")
+    verify(parsed.select("link", "rel", "canonical") == [{"rel":"canonical","href":PARTNERS[lang]}], f"{lang}: partner canonical")
+    expected_partners = {**PARTNERS, "x-default": PARTNERS["es"]}
+    verify({a.get("hreflang"):a.get("href") for a in parsed.select("link","rel","alternate")} == expected_partners, f"{lang}: partner alternates")
+    verify(sitemap.get(PARTNERS[lang]) == expected_partners, f"{lang}: partner sitemap")
 if errors:
     print("FAIL: OficioRD static SEO audit")
     for e in errors: print(" - " + e)

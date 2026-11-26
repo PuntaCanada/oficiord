@@ -45,4 +45,44 @@
     <xhtml:link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/"/>
   </url>
+  <url><loc>https://oficiord.pages.dev/partners.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://oficiord.pages.dev/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oficiord.pages.dev/en/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oficiord.pages.dev/de/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://oficiord.pages.dev/fr/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/partners.html"/>
+  </url>
+  <url><loc>https://oficiord.pages.dev/en/partners.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://oficiord.pages.dev/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oficiord.pages.dev/en/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oficiord.pages.dev/de/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://oficiord.pages.dev/fr/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/partners.html"/>
+  </url>
+  <url><loc>https://oficiord.pages.dev/de/partners.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://oficiord.pages.dev/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oficiord.pages.dev/en/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oficiord.pages.dev/de/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://oficiord.pages.dev/fr/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/partners.html"/>
+  </url>
+  <url><loc>https://oficiord.pages.dev/fr/partners.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://oficiord.pages.dev/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oficiord.pages.dev/en/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oficiord.pages.dev/de/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://oficiord.pages.dev/fr/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/partners.html"/>
+  </url>
+  <url><loc>https://oficiord.pages.dev/ht/partners.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://oficiord.pages.dev/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oficiord.pages.dev/en/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oficiord.pages.dev/de/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://oficiord.pages.dev/fr/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="ht" href="https://oficiord.pages.dev/ht/partners.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://oficiord.pages.dev/partners.html"/>
+  </url>
 </urlset>
