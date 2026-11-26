@@ -74,6 +74,7 @@ try{
     await btn.waitFor();
     assert.equal(await page.locator('#jobs').innerText().then(s=>s.includes('person@example.org')),false,'No private email on public board');
     await btn.click();
+    await page.locator('.od-contact-dialog[open]').waitFor({timeout:7000});
     assert.equal(await page.locator('.od-contact-dialog[open]').count(),1,'Contact dialogue opens for approved listing');
     assert.equal(await page.locator('.od-contact-form input[type="email"]').count(),1,'One contact email field');
     assert.equal(await page.locator('.od-contact-consent input[type="checkbox"]').count(),1,'Consent required');
