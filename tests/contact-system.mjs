@@ -50,3 +50,19 @@ await expectStatus(adminPost({env,request:updateReq}),200);
 const deleteReq=new Request('https://oficiord.pages.dev/api/admin/contact-requests',{method:'DELETE',headers:{...adminHeaders,'content-type':'application/json','origin':'https://oficiord.pages.dev'},body:JSON.stringify({id:uuid,confirm:'DELETE'})});
 await expectStatus(adminDelete({env,request:deleteReq}),200);
 console.log('PASS: '+checks+' offline feature gates, private contact, anti-spam, moderation and no-account contract checks');
+
+// Execute the actual client readiness function without DOM or external network.
+const {readFileSync}=await import('node:fs');
+const {runInNewContext}=await import('node:vm');
+const client=readFileSync(new URL('../assets/oficiord-contact.js',import.meta.url),'utf8');
+const readiness=client.slice(client.indexOf(' let pendingConfig;'),client.indexOf(' const dialog='));
+let requests=0;
+const replies=[()=>{throw Error('offline')},()=>new Response('{}',{status:503}),()=>new Response(JSON.stringify({contactRequestsEnabled:false,turnstileSiteKey:'key'})),()=>new Response(JSON.stringify({contactRequestsEnabled:true,turnstileSiteKey:'key'})),()=>new Response(JSON.stringify({contactRequestsEnabled:true,turnstileSiteKey:''}))];
+const checkReady=runInNewContext(readiness+'\nready',{fetch:async()=>{requests++;return replies.shift()()}});
+assert.equal(await checkReady(),false);
+assert.equal(await checkReady(),false);
+assert.equal(await checkReady(),false);
+assert.deepEqual(await Promise.all([checkReady(),checkReady()]),[true,true]);
+assert.equal(requests,4);
+assert.equal(await checkReady(),false);
+console.log('PASS: contact readiness recovers after temporary failures, coalesces requests and respects disabled configuration');
