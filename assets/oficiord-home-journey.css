@@ -109,3 +109,6 @@ footer .od-safety-footer:focus-visible{outline:3px solid #ffc05a;outline-offset:
 .od-contact-button{display:inline-block;background:#185770;color:white;margin-top:8px;padding:10px 13px}
 .od-contact-form button:focus-visible,.od-contact-button:focus-visible{outline:3px solid #f7b84b;outline-offset:3px}
 @media(max-width:540px){.od-contact-form{padding:17px}.od-contact-dialog{max-height:94vh}}
+
+/* Comfortable touch targets and keyboard focus on the public homepage. */
+header nav .language-direct,header nav .language-controls .language-menu summary,header nav .language-options a,header nav .navlink{min-height:44px;display:inline-flex;align-items:center}header nav .navlink:focus-visible,.actions button:focus-visible,.reportbtn:focus-visible{outline:3px solid #d58a20;outline-offset:3px}.reportbtn,.od-contact-button{min-height:44px}.filters select{min-width:min(190px,100%)}.od-contact-consent input{min-width:24px;min-height:24px}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
