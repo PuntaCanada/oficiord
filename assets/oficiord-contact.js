@@ -9,12 +9,15 @@
   ht:{cta:'Mande kontak (verifikasyon manyèl)',heading:'Mande enfòmasyon sou anons sa a',details:'Se ekip moderasyon an sèlman ki resevwa imel ak mesaj ou an premye. Apre verifikasyon, nou ka pataje yo ak moun ki mete anons la pou li reponn. Pa gen garanti repons ni kontra.',email:'Adrès imel ou',message:'Mesaj (san nimewo telefòn, lyen oswa enfòmasyon bankè)',consent:'Mwen dakò pou yo trete imel ak mesaj mwen epi, apre verifikasyon, pataje yo ak moun ki mete anons la pou reponn demann mwen.',send:'Voye pou verifikasyon',success:'Nou resevwa demann ou pou verifikasyon. Sa pa yon kontra.',fail:'Nou pa ka voye mesaj la. Verifye done yo epi eseye ankò.',close:'Fèmen'}
  };
  const t=copy[lang]||copy.es;
- let available;
+ let pendingConfig;
  const ready=async()=>{
-  if(available!==undefined)return available;
-  try{const r=await fetch('/api/config',{cache:'no-store'});if(!r.ok)return available=false;
-   const x=await r.json();return available=x.contactRequestsEnabled===true&&typeof x.turnstileSiteKey==='string'&&!!x.turnstileSiteKey}
-  catch{return available=false}
+  if(pendingConfig)return pendingConfig;
+  pendingConfig=(async()=>{
+   try{const r=await fetch('/api/config',{cache:'no-store'});if(!r.ok)return false;
+    const x=await r.json();return x?.contactRequestsEnabled===true&&typeof x.turnstileSiteKey==='string'&&!!x.turnstileSiteKey}
+   catch{return false}
+  })();
+  try{return await pendingConfig}finally{pendingConfig=undefined}
  };
  const dialog=document.createElement('dialog');dialog.className='od-contact-dialog';
  const form=document.createElement('form');form.className='od-contact-form';
@@ -47,8 +50,8 @@
  async function open(id){
   if(!await ready())return;
   listing=id;form.reset();status.textContent='';send.disabled=true;dialog.showModal();
-  try{const r=await fetch('/api/config',{cache:'no-store'});const config=await r.json();
-   if(!config.contactRequestsEnabled||!config.turnstileSiteKey)throw Error('CONTACT_CLOSED');
+  try{const r=await fetch('/api/config',{cache:'no-store'});if(!r.ok)throw Error('CONTACT_CLOSED');const config=await r.json();
+   if(config?.contactRequestsEnabled!==true||typeof config.turnstileSiteKey!=='string'||!config.turnstileSiteKey)throw Error('CONTACT_CLOSED');
    const ts=await loadTurnstile();if(!dialog.open||!ts) return;
    if(widget!==null)ts.remove(widget);captcha.replaceChildren();
    key=config.turnstileSiteKey;widget=ts.render(captcha,{sitekey:key});
